@@ -1,0 +1,2 @@
+ps4-ros:robot
+-DCATKIN_DEVEL_PREFIX=/home/karuizawa/ros_ws/devel -DCMAKE_INSTALL_PREFIX=/home/karuizawa/ros_ws/install -G Unix Makefiles
