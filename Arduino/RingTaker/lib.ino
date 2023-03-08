@@ -19,7 +19,7 @@ void smoothing() {
 
 void motoFalcon(int rpm){
   int pwm = (-rpm / 13) + 1500;
-  Serial.println(pwm);
+  Serial.printSerial.print(rpm); Serial.print("\t");Serial.println(pwm);
   falcon.writeMicroseconds(pwm);
 }
 

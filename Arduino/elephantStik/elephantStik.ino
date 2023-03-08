@@ -151,7 +151,7 @@ ros::Publisher IMU("head", &hadap);
 #define KPy 2
 #define KIy 0
 
-#define KPt 1.5
+#define KPt 1.0
 #define KIt 0
 
 #define PPR 134.4
@@ -272,9 +272,13 @@ void setup() {
 void loop() {
   // auto
 //  nh.spinOnce();
-Serial.printlMn(enc1);//Serial.print("\t");Serial.print(enc2);Serial.print("\t");Serial.print(enc3);Serial.print("\t");Serial.println(enc4);
+Serial.print(enc1);Serial.print("\t");Serial.print(enc2);Serial.print("\t");Serial.print(enc3);Serial.print("\t");Serial.println(enc4);
   updateCMPS();
-//  calculatePos();
+//  Serial.println(cmps.heading);/
+//  motor4(-100);
+  calculatePos();
+//  Serial.print(x);Serial.print("\t");Serial.println(y);
+//  kinematic(-4,0,0);
 //  setPos(-4, 0, 0);
 //  if (caseRobot == 0) {
 //    setPos(0, 0, 0);

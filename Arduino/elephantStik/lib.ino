@@ -11,7 +11,7 @@ void readEnc3() {
 }
 
 void readEnc4() {
-  digitalRead(encB4) == 1 ? enc4++ : enc4--;
+  digitalRead(encB4) == 0 ? enc4++ : enc4--;
 }
 
 float toRad(float degree) {
@@ -196,12 +196,12 @@ void PID() {
   errX = XSmoothed - x;
   sumX += errX;
   PIDx = KPx * errX + KIx * sumX * deltaT;
-  PIDx = fmaxf(-2.3, fminf(PIDx, 2.3));
+  PIDx = fmaxf(-7.3, fminf(PIDx, 7.3));
 
   errY = YSmoothed - y;
   sumY += errY;
   PIDy = KPy * errY + KIy * sumY * deltaT;
-  PIDy = fmaxf(-2.3, fminf(PIDy, 2.3));
+  PIDy = fmaxf(-7.3, fminf(PIDy, 7.3));
 
   errT = TSmoothed - cmps.heading;
   sumT += errT;
