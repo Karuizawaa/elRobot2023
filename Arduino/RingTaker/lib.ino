@@ -7,20 +7,14 @@ void iqro2() {
 }
 
 void smoothing() {
-  //  if (millis() - waitSmooth >= 35) {
-  //smoothing
-  //    s1Smoothed = (setPoint1 * 0.05) + (s1Prev * 0.95);
-  //    s1Prev = s1Smoothed;
-  s2Smoothed = (setPoint2 * 0.0005) + (s2Prev * 0.9995);
-  s2Prev = s2Smoothed;
-  //    waitSmooth = millis();
-  //  }
+  falconSmoothed = (setPoint * 0.0005) + (falconPrev * 0.9995);
+  falconPrev = falconSmoothed;
 }
 
 void motoFalcon(int rpm){
-  int pwm = (-rpm / 13) + 1500;
-  Serial.printSerial.print(rpm); Serial.print("\t");Serial.println(pwm);
-  falcon.writeMicroseconds(pwm);
+  setPoint = (-rpm / 13) + 1500;
+//  Serial.printSerial.print(rpm); Serial.print("\t");Serial.println(pwm);
+  falcon.writeMicroseconds(falconSmoothed);
 }
 
 void waitMillis(int millisec) {
@@ -111,23 +105,4 @@ void motor5(float input) {
   input = fminf(fmaxf(input, -255), 255); //batas
   input = abs(input);
   analogWrite(PWMM5, input);
-}
-
-void PID() {
-  unsigned long currT = micros();
-  float deltaT = ((float) (currT - prevT)) / (1.0e6);
-  prevT = currT;
-
-  err1 = setPoint1 - counter1;
-  sum1 += err1;
-  PID1 = KP1 * err1 + KI1 * sum1 * deltaT + KD1 * (err1 - lastErr1) / deltaT;
-  lastErr1 = err1;
-
-  err2 = s2Smoothed - counter2;
-  sum2 += err2;
-  PID2 = KP2 * err2 + KI2 * sum2 * deltaT + KD2 * (err2 - lastErr2) / deltaT;
-  lastErr2 = err2;
-
-  motor1(PID1);
-  motor2(PID2);
 }

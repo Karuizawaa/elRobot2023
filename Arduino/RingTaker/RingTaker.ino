@@ -54,8 +54,8 @@ bool buttonX, buttonO, r1;
 int counter1, counter2;
 int waitSmooth;
 
-float s1Smoothed, s2Smoothed;
-float s1Prev, s2Prev;
+float falconSmoothed;
+float falconPrev;
 
 uint8_t bacaSerial[10];
 uint8_t caseRobot;
@@ -65,7 +65,7 @@ unsigned long curr;
 char mode;
 
 unsigned long prevT = 0, waitGripper;
-float setPoint1, setPoint2, setPoint3;
+float setPoint;
 volatile int err1, err2, err3, lastErr1, lastErr2, lastErr3, sum1, sum2, sum3, PID1, PID2, PID3;
 
 void kali(const std_msgs::Bool& btkali) {
