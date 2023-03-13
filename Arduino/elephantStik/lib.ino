@@ -44,6 +44,14 @@ void updateCMPS() {
   }
 }
 
+void waitMillis(int millisec) {
+  curr = millis();
+  do{
+    nh.spinOnce();
+  }
+  while (!(millis() - curr > millisec));
+}
+
 void motor1 (int pwm) {
   pwm = max(-PWMMAX, min(pwm, PWMMAX));
   analogWrite(pwmM1, fabs(pwm));
@@ -116,12 +124,21 @@ void motor4 (int pwm) {
   }
 }
 
-void kinematic(float vX, float vY, float theta) {
-  setradPS1 = (-sin(toRad(POSM1 + cmps.heading)) * vX + cos(toRad(POSM1 + cmps.heading)) * vY + theta * RADIUSMTR) / RADIUSBAN;
-  setradPS2 = (-sin(toRad(POSM2 + cmps.heading)) * vX + cos(toRad(POSM2 + cmps.heading)) * vY + theta * RADIUSMTR) / RADIUSBAN;
-  setradPS3 = (-sin(toRad(POSM3 + cmps.heading)) * vX + cos(toRad(POSM3 + cmps.heading)) * vY + theta * RADIUSMTR) / RADIUSBAN;
-  setradPS4 = (-sin(toRad(POSM4 + cmps.heading)) * vX + cos(toRad(POSM4 + cmps.heading)) * vY + theta * RADIUSMTR) / RADIUSBAN;
-  PID();
+void kinematic(float vX, float vY, float theta, float heading, bool closedloop) {
+  setradPS1 = (-sin(toRad(POSM1 + heading)) * vX + cos(toRad(POSM1 + heading)) * vY + theta * RADIUSMTR) / RADIUSBAN;
+  setradPS2 = (-sin(toRad(POSM2 + heading)) * vX + cos(toRad(POSM2 + heading)) * vY + theta * RADIUSMTR) / RADIUSBAN;
+  setradPS3 = (-sin(toRad(POSM3 + heading)) * vX + cos(toRad(POSM3 + heading)) * vY + theta * RADIUSMTR) / RADIUSBAN;
+  setradPS4 = (-sin(toRad(POSM4 + heading)) * vX + cos(toRad(POSM4 + heading)) * vY + theta * RADIUSMTR) / RADIUSBAN;
+  if(closedloop == 1){
+    PID();
+  }
+  else{
+    motor1(setradPS1*13);
+    motor2(setradPS2*10);
+    motor3(setradPS3*5);
+    motor4(setradPS4*13);    
+  }
+
 }
 
 void setPos(float POSX, float POSY, float HADAP) {
@@ -129,7 +146,7 @@ void setPos(float POSX, float POSY, float HADAP) {
   setY = POSY;
   setT = HADAP;
   calculatePos();
-  kinematic(PIDx, PIDy, PIDt);
+  kinematic(PIDx, PIDy, PIDt, cmps.heading,1);
 
 }
 
@@ -196,12 +213,12 @@ void PID() {
   errX = XSmoothed - x;
   sumX += errX;
   PIDx = KPx * errX + KIx * sumX * deltaT;
-  PIDx = fmaxf(-7.3, fminf(PIDx, 7.3));
+  PIDx = fmaxf(-5.3, fminf(PIDx,5.3));
 
   errY = YSmoothed - y;
   sumY += errY;
   PIDy = KPy * errY + KIy * sumY * deltaT;
-  PIDy = fmaxf(-7.3, fminf(PIDy, 7.3));
+  PIDy = fmaxf(-5.3, fminf(PIDy, 5.3));
 
   errT = TSmoothed - cmps.heading;
   sumT += errT;

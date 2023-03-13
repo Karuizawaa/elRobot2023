@@ -47,9 +47,8 @@ bool buttonX, buttonO, r1;
 #define CW5   47
 #define CCW5  49
 
-#define PN1 9
-#define PN2 10
-#define PN3 11
+#define PN1 10
+#define PN2 11
 
 int counter1, counter2;
 int waitSmooth;
@@ -105,7 +104,7 @@ void setup() {
   falcon.attach(4);
   pinMode(PN1, OUTPUT);
   pinMode(PN2, OUTPUT);
-  pinMode(PN3, OUTPUT);
+  //  pinMode(PN3, OUTPUT);
 
 
   pinMode(encA1, INPUT);
@@ -137,58 +136,74 @@ void setup() {
   //  Serial2.begin(115200);
   attachInterrupt(digitalPinToInterrupt(encA1), iqro1, RISING);
   attachInterrupt(digitalPinToInterrupt(encA2), iqro2, RISING);
-  //  nh.initNode();
+//    nh.initNode();
   //    nh.subscribe(subX);
   //    nh.subscribe(subO);
-  //  nh.subscribe(subsCase);
+//    nh.subscribe(subsCase);
   //  nh.subscribe(sublsat);
 
-  //  nh.spinOnce();
-  digitalWrite(PN1, HIGH); //lifter dibawah
-  digitalWrite(PN2, HIGH); //slider launcherkedepan
-  digitalWrite(PN3, HIGH);
+    nh.spinOnce();
+  digitalWrite(PN1,0); //lifter dibawah
+  digitalWrite(PN2,0); //slider launcherkedepan
+  //  digitalWrite(PN3, HIGH);
 
   sekali = true;
 
   //  calibrate();
 }
 int wkwk;
-
+char eak;
 void loop() {
+  
   if (Serial.available()) {
-        wkwk = Serial.parseInt();
-//    wkwk = Serial.read();
+    eak = Serial.read();
   }
-
-  //  digitalWrite(PN1, !digitalRead(PN1));
-  //  waitMillis(1500);
-  //  digitalWrite(PN2, !digitalRead(PN2));
-  //  waitMillis(1500);
-  //  digitalWrite(PN3, !digitalRead(PN3));
-  //  waitMillis(1500);
-  //  digitalWrite(PN4, !digitalRead(PN4));
-  //  waitMillis(1500);
-  //  Serial.println(wkwk);
-  motor1(250);
-  motoFalcon(wkwk);
-  ////  nh.spinOnce();
-  //  if(caseRobot == 2){
-  //    digitalWrite(PN1, LOW); //lifter keatas
-  //    waitMillis(1000);
-  //    digitalWrite(PN2, LOW); //slider kebelakang
-  //    waitMillis(1000);
-  //    digitalWrite(PN1, HIGH); //lifter turun kembali
-  //
-  //    while(caseRobot == 2){
-  //      nh.spinOnce();
-  //    }
-  //  }
-  //  if(caseRobot == 3){
-  //    digitalWrite(PN1, LOW);
-  //    digitalWrite(PN2, LOW);
-  //    //falcon steady and base ngeker
-  //    //launching
-  //    if(r1 == 1) motor1(200);
-  //    else motor1(0);
-  //  }
+  if (eak == 'a') {
+    if(digitalRead(PN2) == HIGH){
+      digitalWrite(PN2, LOW);
+      waitMillis(2000);
+    }
+    digitalWrite(PN1, HIGH); //lifter keatas
+    waitMillis(1000);
+    digitalWrite(PN2, HIGH); //slider kebelakang
+    waitMillis(2000);
+    digitalWrite(PN1, LOW); //lifter turun kembali
+    while(eak == 'a'){
+      if (Serial.available()) {
+        eak = Serial.read();
+      }
+    }
+  }
+  if (eak == 'b') {
+    digitalWrite(PN1, LOW);
+    digitalWrite(PN2, HIGH);
+  }
+  else{
+    digitalWrite(PN1, LOW);
+    digitalWrite(PN2, LOW);
+  }
+  
+//    nh.spinOnce();
+    if (caseRobot == 2) {    if(digitalRead(PN2) == HIGH){
+      digitalWrite(PN2, LOW);
+      waitMillis(2000);
+    }
+    digitalWrite(PN1, HIGH); //lifter keatas
+    waitMillis(1000);
+    digitalWrite(PN2, HIGH); //slider kebelakang
+    waitMillis(2000);
+    digitalWrite(PN1, LOW); //lifter turun kembali
+  
+      while (caseRobot == 2) {
+        nh.spinOnce();
+      }
+    }
+    if (caseRobot == 3 || caseRobot == 0) {
+      digitalWrite(PN1, LOW);
+      digitalWrite(PN2, LOW);
+      //falcon steady and base ngeker
+      //launching
+//      if (r1 == 1) motor1(200);
+//      else motor1(0);
+    }
 }

@@ -109,8 +109,8 @@ ros::Publisher IMU("head", &hadap);
 
 #define PWMMAX 200
 
-#define KP1 10
-#define KI1 8
+#define KP1 14
+#define KI1 3
 #define encA1 2
 #define encB1 44
 #define pwmM1 5
@@ -118,8 +118,8 @@ ros::Publisher IMU("head", &hadap);
 #define ccwM1 25
 #define POSM1 45
 
-#define KP2 10
-#define KI2 8
+#define KP2 14
+#define KI2 3
 #define encA2 3
 #define encB2 22
 #define pwmM2 6
@@ -127,8 +127,8 @@ ros::Publisher IMU("head", &hadap);
 #define ccwM2 29
 #define POSM2 135
 
-#define KP3 10
-#define KI3 8
+#define KP3 14
+#define KI3 3
 #define encA3 18
 #define encB3 26
 #define pwmM3 7
@@ -136,14 +136,22 @@ ros::Publisher IMU("head", &hadap);
 #define ccwM3 33
 #define POSM3 225
 
-#define KP4 10
-#define KI4 8
+#define KP4 14
+#define KI4 3
 #define encA4 20
 #define encB4 28
 #define pwmM4 8
 #define cwM4  35
 #define ccwM4 37
 #define POSM4 315
+
+#define LIM1 9
+#define LIM2 10
+#define LIM3 11
+#define LIM4 12
+#define LIM5 13
+#define LIM6 38
+
 
 #define KPx 2
 #define KIx 0
@@ -181,6 +189,8 @@ unsigned long waitSmooth;
 char bacaSer;
 bool pnu1, pnu2, pnu3, pnu4;
 float x, y;
+unsigned long curr;
+int x_temp;
 
 
 struct gy25 {
@@ -251,7 +261,14 @@ void setup() {
   pinMode(cwM4, OUTPUT);
   pinMode(ccwM4, OUTPUT);
 
-  //  nh.initNode();
+  pinMode(LIM1, INPUT_PULLUP);
+  pinMode(LIM2, INPUT_PULLUP);
+  pinMode(LIM3, INPUT_PULLUP);
+  pinMode(LIM4, INPUT_PULLUP);
+  pinMode(LIM5, INPUT_PULLUP);
+  pinMode(LIM6, INPUT_PULLUP);
+
+//    nh.initNode();
   //  nh.advertise(IMU);
   //      nh.subscribe(subsq);
   //      nh.subscribe(subX);
@@ -265,26 +282,39 @@ void setup() {
   //      nh.subscribe(sublY);
   //      nh.subscribe(subl2);
   //      nh.subscribe(subr2);
-  //  nh.subscribe(subsCase);
+//    nh.subscribe(subsCase);
 }
 
 
 void loop() {
   // auto
 //  nh.spinOnce();
-Serial.print(enc1);Serial.print("\t");Serial.print(enc2);Serial.print("\t");Serial.print(enc3);Serial.print("\t");Serial.println(enc4);
+
+//  Serial.print(digitalRead(LIM1)); Serial.print(" "); Serial.print(digitalRead(LIM2)); Serial.print(" "); Serial.print(digitalRead(LIM3)); Serial.print(" "); Serial.print(digitalRead(LIM4)); Serial.print(" "); Serial.print(digitalRead(LIM5)); Serial.print(" "); Serial.println(digitalRead(LIM6));
+//  Serial.print(enc1);Serial.print("\t");Serial.print(enc2);Serial.print("\t");Serial.print(enc3);Serial.print("\t");Serial.println(enc4);
   updateCMPS();
-//  Serial.println(cmps.heading);/
-//  motor4(-100);
   calculatePos();
-//  Serial.print(x);Serial.print("\t");Serial.println(y);
-//  kinematic(-4,0,0);
-//  setPos(-4, 0, 0);
 //  if (caseRobot == 0) {
 //    setPos(0, 0, 0);
 //  }
 //  else if (caseRobot == 1) {
-//    setPos(0, -10.2, 0);
+//    if(y > -7.0){
+//      setPos(0, -9.3, 0);
+//    }
+//    if(y < -7.0){
+//      while(!(digitalRead(LIM1) == 0 && digitalRead(LIM2) == 0)){
+//        kinematic(-1,0,-cmps.heading,cmps.heading,1);
+//        Serial.print("nyender fence blakang");
+//      }
+//      while(!(digitalRead(LIM3) == 0 && digitalRead(LIM4) == 0)){
+//        kinematic(0,-1,-cmps.heading,cmps.heading,1);
+//        Serial.print("nyender fence samping");
+//      }
+//      while(caseRobot == 1){
+//        kinematic(0,0,0,0,0);
+//        nh.spinOnce();
+//      }
+//    }
 //  }
 //  else if (caseRobot == 3) {
 //    setPos(-4, -5.2, 0);
@@ -297,12 +327,35 @@ Serial.print(enc1);Serial.print("\t");Serial.print(enc2);Serial.print("\t");Seri
 //  }
 
 
-  calculatePos();
+//  calculatePos();
   if (Serial.available()) {
     bacaSer = Serial.read();
   }
   if (bacaSer == 'a') {
-    setPos(0, -10.2, 0);
+    if(y > -9.0){
+      setPos(0, -9.8, 0);
+    }
+    if(y < -9.0){
+      while(!(digitalRead(LIM1) == 0 && digitalRead(LIM2) == 0)){
+        kinematic(-4,0,0,0,1);
+        Serial.println("nyender fence blakang");
+        x_temp = x;
+      }
+      kinematic(0,0,0,0,0);
+      waitMillis(1500);
+      while(!(digitalRead(LIM3) == 0 && digitalRead(LIM4) == 0)){
+        kinematic(0,-3,0,0,1);
+        Serial.println("nyender fence samping");
+      }
+      while(bacaSer == 'a'){
+        kinematic(0,0,0,0,0);
+        if (Serial.available()) {
+          bacaSer = Serial.read();
+        }
+      }
+    }
+    
+    
   }
   if (bacaSer == 'b') {
     setPos(-4, -5.2, 0);
