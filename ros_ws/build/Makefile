@@ -285,6 +285,19 @@ gtest/fast:
 .PHONY : gtest/fast
 
 #=============================================================================
+# Target rules for targets named kondisi
+
+# Build rule for target.
+kondisi: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 kondisi
+.PHONY : kondisi
+
+# fast build rule for target.
+kondisi/fast:
+	$(MAKE) -f robot/CMakeFiles/kondisi.dir/build.make robot/CMakeFiles/kondisi.dir/build
+.PHONY : kondisi/fast
+
+#=============================================================================
 # Target rules for targets named rosgraph_msgs_generate_messages_py
 
 # Build rule for target.
@@ -787,6 +800,7 @@ help:
 	@echo "... gmock"
 	@echo "... gtest_main"
 	@echo "... gtest"
+	@echo "... kondisi"
 	@echo "... rosgraph_msgs_generate_messages_py"
 	@echo "... std_msgs_generate_messages_lisp"
 	@echo "... actionlib_msgs_generate_messages_cpp"

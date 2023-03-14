@@ -39,6 +39,7 @@
 /home/karuizawa/ros_ws/build/robot/CMakeFiles/install.dir
 /home/karuizawa/ros_ws/build/robot/CMakeFiles/list_install_components.dir
 /home/karuizawa/ros_ws/build/robot/CMakeFiles/edit_cache.dir
+/home/karuizawa/ros_ws/build/robot/CMakeFiles/kondisi.dir
 /home/karuizawa/ros_ws/build/robot/CMakeFiles/rosgraph_msgs_generate_messages_py.dir
 /home/karuizawa/ros_ws/build/robot/CMakeFiles/std_msgs_generate_messages_lisp.dir
 /home/karuizawa/ros_ws/build/robot/CMakeFiles/actionlib_msgs_generate_messages_cpp.dir

@@ -168,6 +168,21 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
+robot/CMakeFiles/kondisi.dir/rule:
+	cd /home/karuizawa/ros_ws/build && $(MAKE) -f CMakeFiles/Makefile2 robot/CMakeFiles/kondisi.dir/rule
+.PHONY : robot/CMakeFiles/kondisi.dir/rule
+
+# Convenience name for target.
+kondisi: robot/CMakeFiles/kondisi.dir/rule
+
+.PHONY : kondisi
+
+# fast build rule for target.
+kondisi/fast:
+	cd /home/karuizawa/ros_ws/build && $(MAKE) -f robot/CMakeFiles/kondisi.dir/build.make robot/CMakeFiles/kondisi.dir/build
+.PHONY : kondisi/fast
+
+# Convenience name for target.
 robot/CMakeFiles/rosgraph_msgs_generate_messages_py.dir/rule:
 	cd /home/karuizawa/ros_ws/build && $(MAKE) -f CMakeFiles/Makefile2 robot/CMakeFiles/rosgraph_msgs_generate_messages_py.dir/rule
 .PHONY : robot/CMakeFiles/rosgraph_msgs_generate_messages_py.dir/rule
@@ -632,6 +647,33 @@ roscpp_generate_messages_py/fast:
 	cd /home/karuizawa/ros_ws/build && $(MAKE) -f robot/CMakeFiles/roscpp_generate_messages_py.dir/build.make robot/CMakeFiles/roscpp_generate_messages_py.dir/build
 .PHONY : roscpp_generate_messages_py/fast
 
+src/dirCase.o: src/dirCase.cpp.o
+
+.PHONY : src/dirCase.o
+
+# target to build an object file
+src/dirCase.cpp.o:
+	cd /home/karuizawa/ros_ws/build && $(MAKE) -f robot/CMakeFiles/kondisi.dir/build.make robot/CMakeFiles/kondisi.dir/src/dirCase.cpp.o
+.PHONY : src/dirCase.cpp.o
+
+src/dirCase.i: src/dirCase.cpp.i
+
+.PHONY : src/dirCase.i
+
+# target to preprocess a source file
+src/dirCase.cpp.i:
+	cd /home/karuizawa/ros_ws/build && $(MAKE) -f robot/CMakeFiles/kondisi.dir/build.make robot/CMakeFiles/kondisi.dir/src/dirCase.cpp.i
+.PHONY : src/dirCase.cpp.i
+
+src/dirCase.s: src/dirCase.cpp.s
+
+.PHONY : src/dirCase.s
+
+# target to generate assembly for a file
+src/dirCase.cpp.s:
+	cd /home/karuizawa/ros_ws/build && $(MAKE) -f robot/CMakeFiles/kondisi.dir/build.make robot/CMakeFiles/kondisi.dir/src/dirCase.cpp.s
+.PHONY : src/dirCase.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -642,6 +684,7 @@ help:
 	@echo "... install"
 	@echo "... list_install_components"
 	@echo "... edit_cache"
+	@echo "... kondisi"
 	@echo "... rosgraph_msgs_generate_messages_py"
 	@echo "... std_msgs_generate_messages_lisp"
 	@echo "... actionlib_msgs_generate_messages_cpp"
@@ -676,6 +719,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... roscpp_generate_messages_eus"
 	@echo "... roscpp_generate_messages_py"
+	@echo "... src/dirCase.o"
+	@echo "... src/dirCase.i"
+	@echo "... src/dirCase.s"
 .PHONY : help
 
 
