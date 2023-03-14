@@ -150,7 +150,7 @@ ros::Publisher IMU("head", &hadap);
 #define LIM3 11
 #define LIM4 12
 #define LIM5 13
-#define LIM6 38
+#define LIM6 24
 
 
 #define KPx 2
@@ -268,7 +268,7 @@ void setup() {
   pinMode(LIM5, INPUT_PULLUP);
   pinMode(LIM6, INPUT_PULLUP);
 
-//    nh.initNode();
+      nh.initNode();
   //  nh.advertise(IMU);
   //      nh.subscribe(subsq);
   //      nh.subscribe(subX);
@@ -282,91 +282,162 @@ void setup() {
   //      nh.subscribe(sublY);
   //      nh.subscribe(subl2);
   //      nh.subscribe(subr2);
-//    nh.subscribe(subsCase);
+      nh.subscribe(subsCase);
 }
 
 
 void loop() {
   // auto
-//  nh.spinOnce();
+    nh.spinOnce();
 
-//  Serial.print(digitalRead(LIM1)); Serial.print(" "); Serial.print(digitalRead(LIM2)); Serial.print(" "); Serial.print(digitalRead(LIM3)); Serial.print(" "); Serial.print(digitalRead(LIM4)); Serial.print(" "); Serial.print(digitalRead(LIM5)); Serial.print(" "); Serial.println(digitalRead(LIM6));
-//  Serial.print(enc1);Serial.print("\t");Serial.print(enc2);Serial.print("\t");Serial.print(enc3);Serial.print("\t");Serial.println(enc4);
+//    Serial.print(digitalRead(LIM1)); Serial.print(" "); Serial.print(digitalRead(LIM2)); Serial.print(" "); Serial.print(digitalRead(LIM3)); Serial.print(" "); Serial.print(digitalRead(LIM4)); Serial.print(" "); Serial.print(digitalRead(LIM5)); Serial.print(" "); Serial.println(digitalRead(LIM6));
+//    Serial.print(enc1);Serial.print("\t");Serial.print(enc2);Serial.print("\t");Serial.print(enc3);Serial.print("\t");Serial.println(enc4);
   updateCMPS();
   calculatePos();
-//  if (caseRobot == 0) {
-//    setPos(0, 0, 0);
+//  Serial.print(x); Serial.print("\t");Serial.println(y);
+  //  if (caseRobot == 0
+
+  //  calculatePos();
+//  if (Serial.available()) {
+//    bacaSer = Serial.read();
 //  }
-//  else if (caseRobot == 1) {
-//    if(y > -7.0){
-//      setPos(0, -9.3, 0);
+//  if (bacaSer == 'a') {
+//    if (y > -9.0) {
+//      setPos(0, -9.8, 0);
 //    }
-//    if(y < -7.0){
-//      while(!(digitalRead(LIM1) == 0 && digitalRead(LIM2) == 0)){
-//        kinematic(-1,0,-cmps.heading,cmps.heading,1);
-//        Serial.print("nyender fence blakang");
+//    if (y < -9.0) {
+//      sum1 = 0;
+//      sum2 = 0;
+//      sum3 = 0;
+//      sum4 = 0;
+//      kinematic(0,0,0,0,0);
+//      waitMillis(1000);
+//      while (!(digitalRead(LIM1) == 0 && digitalRead(LIM2) == 0)) {
+//        calculatePos();
+//        
+//        kinematic(-2, 0, 0, 0, 1);
+//        Serial.println("nyender fence blakang");
+//        x_temp = x;
 //      }
-//      while(!(digitalRead(LIM3) == 0 && digitalRead(LIM4) == 0)){
-//        kinematic(0,-1,-cmps.heading,cmps.heading,1);
-//        Serial.print("nyender fence samping");
+//      kinematic(0, 0, 0, 0, 0);
+//      waitMillis(1500);
+//      while (!(digitalRead(LIM3) == 0 && digitalRead(LIM6) == 0)) {
+//        calculatePos();
+//        kinematic(0, -3, 0, 0, 1);
+//        Serial.println("nyender fence samping");
 //      }
-//      while(caseRobot == 1){
-//        kinematic(0,0,0,0,0);
-//        nh.spinOnce();
+//      while (bacaSer == 'a') {
+//        x = 0;
+//        y = 0;
+//        kinematic(0, 0, 0, 0, 0);
+//        if (Serial.available()) {
+//          bacaSer = Serial.read();
+//        }
 //      }
 //    }
+//
+//
 //  }
-//  else if (caseRobot == 3) {
-//    setPos(-4, -5.2, 0);
+//  if (bacaSer == 'b') {
+//    setPos(-0, 10.2, 0);
 //  }
-//  else if (caseRobot == 4) {
+//  if (bacaSer == 'c') {
 //    setPos(-4, -5.2, 90);
 //  }
-//  else if (caseRobot == 5) {
+//  if (bacaSer == 'd') {
 //    setPos(-4, -5.2, 0);
 //  }
+//  if (bacaSer == 'e') {
+//    setPos(0, 0, 0);
+//  }
 
-
-//  calculatePos();
-  if (Serial.available()) {
-    bacaSer = Serial.read();
-  }
-  if (bacaSer == 'a') {
-    if(y > -9.0){
-      setPos(0, -9.8, 0);
+  if (caseRobot == 8) {
+    if (y < 20.0) {
+      setPos(0, 20.0, 180);
     }
-    if(y < -9.0){
-      while(!(digitalRead(LIM1) == 0 && digitalRead(LIM2) == 0)){
-        kinematic(-4,0,0,0,1);
+    if (y > 19.7) {
+      sum1 = 0;
+      sum2 = 0;
+      sum3 = 0;
+      sum4 = 0;
+      kinematic(0,0,0,0,0);
+      waitMillis(1000);
+      while (!(digitalRead(LIM1) == 0 && digitalRead(LIM2) == 0)) {
+        calculatePos();
+        nh.spinOnce();
+        kinematic(-2, 0, 0, 0, 1);
         Serial.println("nyender fence blakang");
         x_temp = x;
       }
-      kinematic(0,0,0,0,0);
+      kinematic(0, 0, 0, 0, 0);
       waitMillis(1500);
-      while(!(digitalRead(LIM3) == 0 && digitalRead(LIM4) == 0)){
-        kinematic(0,-3,0,0,1);
+      while (!(digitalRead(LIM3) == 0 && digitalRead(LIM6) == 0)) {
+        calculatePos();
+        nh.spinOnce();
+        kinematic(0, -3, 0, 0, 1);
         Serial.println("nyender fence samping");
       }
-      while(bacaSer == 'a'){
-        kinematic(0,0,0,0,0);
-        if (Serial.available()) {
-          bacaSer = Serial.read();
-        }
+      while (caseRobot == 8) {
+        x = 0;
+        y = 0;
+        sum1 = 0;
+        sum2 = 0;
+        sum3 = 0;
+        sum4 = 0;
+        kinematic(0, 0, 0, 0, 0);
+        nh.spinOnce();
       }
     }
-    
-    
+
+
   }
-  if (bacaSer == 'b') {
-    setPos(-4, -5.2, 0);
+  if (caseRobot == 9) {
+    setPos(0, 10.2, 0);
   }
-  if (bacaSer == 'c') {
-    setPos(-4, -5.2, 90);
+  if (caseRobot == 1){
+    if (y > -9.0) {
+      setPos(0, -9.8, 0);
+    }
+    if (y < -9.0) {
+      sum1 = 0;
+      sum2 = 0;
+      sum3 = 0;
+      sum4 = 0;
+      kinematic(0,0,0,0,0);
+      waitMillis(1000);
+      while (!(digitalRead(LIM4) == 0 && digitalRead(LIM5) == 0)) {
+        calculatePos();
+        nh.spinOnce();
+        kinematic(2, 0, 0, 0, 1);
+        Serial.println("nyender fence blakang");
+        x_temp = x;
+      }
+      kinematic(0, 0, 0, 0, 0);
+      waitMillis(1500);
+      while (!(digitalRead(LIM3) == 0 && digitalRead(LIM6) == 0)) {
+        calculatePos();
+        nh.spinOnce();
+        kinematic(0, -3, 0, 0, 1);
+        Serial.println("nyender fence samping");
+      }
+      x = 0;
+      y = 0;
+      sum1 = 0;
+      sum2 = 0;
+      sum3 = 0;
+      sum4 = 0;
+      XSmoothed = 0;
+      YSmoothed = 0;
+      XPrev = 0;
+      YPrev = 0;
+      while (caseRobot == 1) {
+
+        kinematic(0, 0, 0, 0, 0);
+        nh.spinOnce();
+      }
+    }
   }
-  if (bacaSer == 'd') {
-    setPos(-4, -5.2, 0);
-  }
-  if (bacaSer == 'e') {
-    setPos(0, 0, 0);
+  if (caseRobot == 3) {
+    setPos(-1, 2, 90);
   }
 }

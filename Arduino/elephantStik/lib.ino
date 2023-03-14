@@ -48,6 +48,7 @@ void waitMillis(int millisec) {
   curr = millis();
   do{
     nh.spinOnce();
+    calculatePos();
   }
   while (!(millis() - curr > millisec));
 }
@@ -56,11 +57,11 @@ void motor1 (int pwm) {
   pwm = max(-PWMMAX, min(pwm, PWMMAX));
   analogWrite(pwmM1, fabs(pwm));
 
-  if (pwm > 0) {
+  if (pwm < 0) {
     digitalWrite(cwM1, 1);
     digitalWrite(ccwM1, 0);
   }
-  else if (pwm < 0) {
+  else if (pwm > 0) {
     digitalWrite(cwM1, 0);
     digitalWrite(ccwM1, 1);
   }
@@ -74,11 +75,11 @@ void motor2 (int pwm) {
   pwm = max(-PWMMAX, min(pwm, PWMMAX));
   analogWrite(pwmM2, fabs(pwm));
 
-  if (pwm > 0) {
+  if (pwm < 0) {
     digitalWrite(cwM2, 1);
     digitalWrite(ccwM2, 0);
   }
-  else if (pwm < 0) {
+  else if (pwm > 0) {
     digitalWrite(cwM2, 0);
     digitalWrite(ccwM2, 1);
   }
@@ -213,14 +214,18 @@ void PID() {
   errX = XSmoothed - x;
   sumX += errX;
   PIDx = KPx * errX + KIx * sumX * deltaT;
-  PIDx = fmaxf(-5.3, fminf(PIDx,5.3));
+//  PIDx = fmaxf(-7.3, fminf(PIDx,7.3));
 
   errY = YSmoothed - y;
   sumY += errY;
   PIDy = KPy * errY + KIy * sumY * deltaT;
-  PIDy = fmaxf(-5.3, fminf(PIDy, 5.3));
+//  PIDy = fmaxf(-7.3, fminf(PIDy, 7.3));
 
+  
   errT = TSmoothed - cmps.heading;
+  if(errT > 180 || errT < -180){
+    errT = cmps.heading - TSmoothed;
+  }
   sumT += errT;
   PIDt = KPt * errT + KIt * sumT * deltaT;
   PIDt = fmaxf(-3.7, fminf(PIDt, 3.7));

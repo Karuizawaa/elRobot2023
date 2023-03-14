@@ -136,74 +136,76 @@ void setup() {
   //  Serial2.begin(115200);
   attachInterrupt(digitalPinToInterrupt(encA1), iqro1, RISING);
   attachInterrupt(digitalPinToInterrupt(encA2), iqro2, RISING);
-//    nh.initNode();
+  nh.initNode();
   //    nh.subscribe(subX);
   //    nh.subscribe(subO);
-//    nh.subscribe(subsCase);
+  nh.subscribe(subsCase);
   //  nh.subscribe(sublsat);
 
-    nh.spinOnce();
-  digitalWrite(PN1,0); //lifter dibawah
-  digitalWrite(PN2,0); //slider launcherkedepan
-  //  digitalWrite(PN3, HIGH);
-
-  sekali = true;
-
-  //  calibrate();
+  nh.spinOnce();
+  digitalWrite(PN1, 0); //lifter dibawah
+  digitalWrite(PN2, 0); //slider launcherkedepan
 }
 int wkwk;
 char eak;
 void loop() {
-  
-  if (Serial.available()) {
-    eak = Serial.read();
-  }
-  if (eak == 'a') {
-    if(digitalRead(PN2) == HIGH){
+//  digitalWrite(PN1, 1);
+
+  //  if (Serial.available()) {
+  //    eak = Serial.read();
+  //  }
+  //  if (eak == 'a') {
+  //    if(digitalRead(PN2) == HIGH){
+  //      digitalWrite(PN2, LOW);
+  //      waitMillis(2000);
+  //    }
+  //    digitalWrite(PN1, HIGH); //lifter keatas
+  //    waitMillis(1000);
+  //    digitalWrite(PN2, HIGH); //slider kebelakang
+  //    waitMillis(2000);
+  //    digitalWrite(PN1, LOW); //lifter turun kembali
+  //    while(eak == 'a'){
+  //      if (Serial.available()) {
+  //        eak = Serial.read();
+  //      }
+  //    }
+  //  }
+  //  if (eak == 'b') {
+  //    digitalWrite(PN1, LOW);
+  //    digitalWrite(PN2, HIGH);
+  //  }
+  //  else{
+  //    digitalWrite(PN1, LOW);
+  //    digitalWrite(PN2, LOW);
+  //  }
+
+  nh.spinOnce();
+  if (caseRobot == 2) {
+    if (digitalRead(PN2) == HIGH) {
       digitalWrite(PN2, LOW);
-      waitMillis(2000);
+      waitMillis(2500);
     }
-    digitalWrite(PN1, HIGH); //lifter keatas
+    if (digitalRead(PN1) == HIGH) {
+      digitalWrite(PN1, LOW);
+      waitMillis(2500);
+    }
+    digitalWrite(PN2, HIGH); //lifter keatas
     waitMillis(1000);
-    digitalWrite(PN2, HIGH); //slider kebelakang
+    digitalWrite(PN1, HIGH); //slider kebelakang
     waitMillis(2000);
-    digitalWrite(PN1, LOW); //lifter turun kembali
-    while(eak == 'a'){
-      if (Serial.available()) {
-        eak = Serial.read();
-      }
-    }
+    digitalWrite(PN2, LOW); //lifter turun kembali
+
+    do {
+//      digitalWrite(PN/, HIGH); //slider kebelakang
+      nh.spinOnce();
+    }while (caseRobot == 2);
   }
-  if (eak == 'b') {
-    digitalWrite(PN1, LOW);
-    digitalWrite(PN2, HIGH);
-  }
-  else{
+  if (caseRobot == 3 || caseRobot == 0) {
     digitalWrite(PN1, LOW);
     digitalWrite(PN2, LOW);
+    //falcon steady and base ngeker
+    //launching
+    //      if (r1 == 1) motor1(200);
+    //      else motor1(0);
   }
-  
-//    nh.spinOnce();
-    if (caseRobot == 2) {    if(digitalRead(PN2) == HIGH){
-      digitalWrite(PN2, LOW);
-      waitMillis(2000);
-    }
-    digitalWrite(PN1, HIGH); //lifter keatas
-    waitMillis(1000);
-    digitalWrite(PN2, HIGH); //slider kebelakang
-    waitMillis(2000);
-    digitalWrite(PN1, LOW); //lifter turun kembali
-  
-      while (caseRobot == 2) {
-        nh.spinOnce();
-      }
-    }
-    if (caseRobot == 3 || caseRobot == 0) {
-      digitalWrite(PN1, LOW);
-      digitalWrite(PN2, LOW);
-      //falcon steady and base ngeker
-      //launching
-//      if (r1 == 1) motor1(200);
-//      else motor1(0);
-    }
 }
