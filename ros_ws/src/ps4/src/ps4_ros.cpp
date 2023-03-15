@@ -28,7 +28,7 @@ public:
         // this->pubkali = n.advertise<std_msgs::Bool> ("kali", 10);
         // this->pubbulet = n.advertise<std_msgs::Bool> ("bulet", 10);
         // this->publupis = n.advertise<std_msgs::Bool> ("lupis", 10);
-        // this->pubL1 = n.advertise<std_msgs::Bool> ("lsatu", 10);
+        this->pubL1 = n.advertise<std_msgs::Bool> ("lsatu", 10);
         // this->pubR1 = n.advertise<std_msgs::Bool> ("rsatu", 10);
         // this->publeft = n.advertise<std_msgs::Bool> ("left", 10);
         // this->pubdown = n.advertise<std_msgs::Bool> ("down", 10);
@@ -206,7 +206,15 @@ public:
         // pubR2.publish(R2);
         // publeftX.publish(leftX);
         // publeftY.publish(leftY);
-        pubCase.publish(caseRobot);
+        if(caseRobot.data != prevCase){
+            pubCase.publish(caseRobot);
+            prevCase = caseRobot.data;
+        }
+        if(L1.data != prevL1){
+            pubL1.publish(L1);
+            prevL1 = L1.data;
+        }
+        
     }
 
     bool calibrate()
@@ -300,6 +308,8 @@ private:
     std_msgs::Float32 R2, L2, leftX, leftY, rightX, rightY;
 
     std_msgs::UInt8 caseRobot;
+    uint8_t prevCase;
+    uint8_t prevL1;
 
     /* calibration variables */
     int calib_duration = 20; // 1/10 sec

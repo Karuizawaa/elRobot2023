@@ -3,7 +3,7 @@
 #include "std_msgs/UInt8.h"
 #include "Servo.h"
 
-bool buttonX, buttonO, r1;
+bool buttonX, buttonO, l1;
 
 #define KP1 150
 #define KI1 0
@@ -84,8 +84,8 @@ void recCase(const std_msgs::UInt8& rec) {
   caseRobot = rec.data;
 }
 
-void rsat(const std_msgs::Bool& btrsat) {
-  r1 = btrsat.data;
+void lsat(const std_msgs::Bool& btlsat) {
+  l1 = btlsat.data;
 }
 
 ros::NodeHandle nh;
@@ -98,7 +98,7 @@ Servo falcon;
 //ros::Subscriber<std_msgs::Bool> subX ("kali", kali);
 //ros::Subscriber<std_msgs::Bool> subO ("bulet", bulet);
 ros::Subscriber<std_msgs::UInt8> subsCase ("case", recCase);
-ros::Subscriber<std_msgs::Bool> sublsat ("rsatu", rsat);
+ros::Subscriber<std_msgs::Bool> sublsat ("lsatu", lsat);
 
 void setup() {
   falcon.attach(4);
@@ -140,9 +140,9 @@ void setup() {
   //    nh.subscribe(subX);
   //    nh.subscribe(subO);
   nh.subscribe(subsCase);
-  //  nh.subscribe(sublsat);
+  nh.subscribe(sublsat);
 
-  nh.spinOnce();
+//  nh.spinOnce();
   digitalWrite(PN1, 0); //lifter dibawah
   digitalWrite(PN2, 0); //slider launcherkedepan
 }
@@ -151,9 +151,12 @@ char eak;
 void loop() {
 //  digitalWrite(PN1, 1);
 
-  //  if (Serial.available()) {
-  //    eak = Serial.read();
-  //  }
+//    if (Serial.available()) {
+//      wkwk = Serial.parseInt();
+//      Serial.println(wkwk);
+//    }
+//    motoFalcon(1000);
+falcon.writeMicroseconds(1400);
   //  if (eak == 'a') {
   //    if(digitalRead(PN2) == HIGH){
   //      digitalWrite(PN2, LOW);
@@ -200,12 +203,18 @@ void loop() {
       nh.spinOnce();
     }while (caseRobot == 2);
   }
-  if (caseRobot == 3 || caseRobot == 0) {
+  if (caseRobot == 0 || caseRobot == 8) {
     digitalWrite(PN1, LOW);
     digitalWrite(PN2, LOW);
     //falcon steady and base ngeker
     //launching
     //      if (r1 == 1) motor1(200);
     //      else motor1(0);
+  }
+  if(l1 == true){
+    motor1(-200);
+  }
+  else if(l1 == false){
+    motor1(0);
   }
 }

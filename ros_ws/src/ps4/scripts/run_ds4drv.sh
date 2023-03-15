@@ -6,6 +6,7 @@ ds4drv --hidraw &
 mac="49:FA:A3:81:1C:A5" #Stik Robot Gadjah
 #mac="D6:36:14:7F:6B:1B" #Stik Robot Kelinci
 bluetoothctl remove "$mac"
+rfkill unblock bluetooth
 while :
 do
     if bluetoothctl info "$mac" | grep -q 'Connected: no'; then

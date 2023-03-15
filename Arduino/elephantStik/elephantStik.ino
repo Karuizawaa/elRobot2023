@@ -352,10 +352,10 @@ void loop() {
 //  }
 
   if (caseRobot == 8) {
-    if (y < 20.0) {
-      setPos(0, 20.0, 180);
+    if (y < 11) {
+      setPos(0, 11.8, 178.9);
     }
-    if (y > 19.7) {
+    if (y > 11 ) {
       sum1 = 0;
       sum2 = 0;
       sum3 = 0;
@@ -365,7 +365,7 @@ void loop() {
       while (!(digitalRead(LIM1) == 0 && digitalRead(LIM2) == 0)) {
         calculatePos();
         nh.spinOnce();
-        kinematic(-2, 0, 0, 0, 1);
+        kinematic(-2.5, 0, 0, 0, 1);
         Serial.println("nyender fence blakang");
         x_temp = x;
       }
@@ -377,13 +377,15 @@ void loop() {
         kinematic(0, -3, 0, 0, 1);
         Serial.println("nyender fence samping");
       }
+      sum1 = 0;
+      sum2 = 0;
+      sum3 = 0;
+      sum4 = 0;
+      XSmoothed = x;
+      YSmoothed = y;
+      XPrev = x;
+      YPrev = y;
       while (caseRobot == 8) {
-        x = 0;
-        y = 0;
-        sum1 = 0;
-        sum2 = 0;
-        sum3 = 0;
-        sum4 = 0;
         kinematic(0, 0, 0, 0, 0);
         nh.spinOnce();
       }
@@ -392,13 +394,13 @@ void loop() {
 
   }
   if (caseRobot == 9) {
-    setPos(0, 10.2, 0);
+    setPos(0, 0, 0);
   }
   if (caseRobot == 1){
-    if (y > -9.0) {
-      setPos(0, -9.8, 0);
+    if (y > -9.2) {
+      setPos(0, -10.0, 0);
     }
-    if (y < -9.0) {
+    if (y < -9.2) {
       sum1 = 0;
       sum2 = 0;
       sum3 = 0;
@@ -408,7 +410,7 @@ void loop() {
       while (!(digitalRead(LIM4) == 0 && digitalRead(LIM5) == 0)) {
         calculatePos();
         nh.spinOnce();
-        kinematic(2, 0, 0, 0, 1);
+        kinematic(2.5, 0, 0, 0, 1);
         Serial.println("nyender fence blakang");
         x_temp = x;
       }
@@ -420,24 +422,22 @@ void loop() {
         kinematic(0, -3, 0, 0, 1);
         Serial.println("nyender fence samping");
       }
-      x = 0;
-      y = 0;
       sum1 = 0;
       sum2 = 0;
       sum3 = 0;
       sum4 = 0;
-      XSmoothed = 0;
-      YSmoothed = 0;
-      XPrev = 0;
-      YPrev = 0;
+      XSmoothed = x;
+      YSmoothed = y;
+      XPrev = x;
+      YPrev = y;
       while (caseRobot == 1) {
-
+        calculatePos();
         kinematic(0, 0, 0, 0, 0);
         nh.spinOnce();
       }
     }
   }
   if (caseRobot == 3) {
-    setPos(-1, 2, 90);
+    setPos(-1.5, -6, 90);
   }
 }

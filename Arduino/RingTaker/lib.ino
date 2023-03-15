@@ -12,6 +12,7 @@ void smoothing() {
 }
 
 void motoFalcon(int rpm){
+  smoothing();
   setPoint = (-rpm / 13) + 1500;
 //  Serial.printSerial.print(rpm); Serial.print("\t");Serial.println(pwm);
   falcon.writeMicroseconds(falconSmoothed);

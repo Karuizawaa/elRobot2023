@@ -1,5 +1,5 @@
 #define encA1 2
-#define encB1 4
+#define encB1 31
 
 int counter1;
 
