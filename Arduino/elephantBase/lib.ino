@@ -49,6 +49,10 @@ void waitMillis(int millisec) {
   do{
     nh.spinOnce();
     calculatePos();
+    sum1 = 0;
+    sum2 = 0;
+    sum3 = 0;
+    sum4 = 0;
   }
   while (!(millis() - curr > millisec));
 }
@@ -214,12 +218,12 @@ void PID() {
   errX = XSmoothed - x;
   sumX += errX;
   PIDx = KPx * errX + KIx * sumX * deltaT;
-//  PIDx = fmaxf(-7.3, fminf(PIDx,7.3));
+//  PIDx = fmaxf(-3.3, fminf(PIDx,3.3));
 
   errY = YSmoothed - y;
   sumY += errY;
   PIDy = KPy * errY + KIy * sumY * deltaT;
-//  PIDy = fmaxf(-7.3, fminf(PIDy, 7.3));
+//  PIDy = fmaxf(-3.3, fminf(PIDy, 3.3));
 
   
   errT = TSmoothed - cmps.heading;
