@@ -161,13 +161,13 @@ ros::Publisher IMU("head", &hadap);
 #define LIM10 48
 
 
-#define KPx 7
+#define KPx 4
 #define KIx 0
 
-#define KPy 7
+#define KPy 4
 #define KIy 0
 
-#define KPt 1.4
+#define KPt 1
 #define KIt 0
 
 #define PPR 3840
@@ -310,22 +310,25 @@ void loop() {
 //  PID();
   // auto
     nh.spinOnce();
-    Serial.print(digitalRead(LIM1)); Serial.print(" "); Serial.print(digitalRead(LIM2)); Serial.print(" "); Serial.print(digitalRead(LIM3)); Serial.print(" "); Serial.print(digitalRead(LIM4)); Serial.print(" "); Serial.print(digitalRead(LIM5)); Serial.print(" "); Serial.print(digitalRead(LIM6)); Serial.print(" "); Serial.print(digitalRead(LIM7)); Serial.print(" "); Serial.print(digitalRead(LIM8)); Serial.print(" "); Serial.print(digitalRead(LIM9)); Serial.print(" "); Serial.println(digitalRead(LIM10));
+//    Serial.print(digitalRead(LIM1)); Serial.print(" "); Serial.print(digitalRead(LIM2)); Serial.print(" "); Serial.print(digitalRead(LIM3)); Serial.print(" "); Serial.print(digitalRead(LIM4)); Serial.print(" "); Serial.print(digitalRead(LIM5)); Serial.print(" "); Serial.print(digitalRead(LIM6)); Serial.print(" "); Serial.print(digitalRead(LIM7)); Serial.print(" "); Serial.print(digitalRead(LIM8)); Serial.print(" "); Serial.print(digitalRead(LIM9)); Serial.print(" "); Serial.println(digitalRead(LIM10));
 //    Serial.print(enc1);Serial.print("\t");Serial.print(enc2);Serial.print("\t");Serial.print(enc3);Serial.print("\t");Serial.println(enc4);
   updateCMPS();
   calculatePos();
-//  Serial.print(x); Serial.print("\t"); Serial.print(y); Serial.print("\t"); Serial.println(cmps.heading);
+  Serial.print(x); Serial.print("\t"); Serial.print(y); Serial.print("\t"); Serial.println(cmps.heading);
 
   //ambil ring kiri
   if (caseRobot == 1){
-    if (y > -12.2) {
-      setPos(0, -13.0, 0);
+    if (y > -8.2) {
+      setPos(0, -10.0, 0);
     }
-    if (y < -12.2) {
+    if (y < -8.2) {
       sum1 = 0;
       sum2 = 0;
       sum3 = 0;
       sum4 = 0;
+      sumX = 0;
+      sumY = 0;
+      sumT = 0;
       kinematic(0,0,0,0,0);
       waitMillis(1000);
 
@@ -338,6 +341,9 @@ void loop() {
         x_temp = x;
       }
       kinematic(0, 0, 0, 0, 0);
+      sumX = 0;
+      sumY = 0;
+      sumT = 0;
       waitMillis(1500);
       
       //nyender fence samping
@@ -350,6 +356,9 @@ void loop() {
       sum2 = 0;
       sum3 = 0;
       sum4 = 0;
+      sumX = 0;
+      sumY = 0;
+      sumT = 0;
       XSmoothed = x;
       YSmoothed = y;
       XPrev = x;
@@ -364,8 +373,8 @@ void loop() {
     }
   }
   if(caseRobot == 2){
-    if(x > x_temp - 3){
-      setPos(x_temp -3, y_temp + 3, 45);
+    if(x > x_temp - 1){
+      setPos(x_temp -2, y_temp + 2.1, 45);
     }
     else {
       
@@ -374,7 +383,7 @@ void loop() {
         updateCMPS();
         nh.spinOnce();
         calculatePos();
-        kinematic(0,0,cmps.heading - 45 , 0, 1);
+        kinematic(0,0,(45 - cmps.heading) * 0.7 , 0, 1);
       }
       while (!(millis() - curr > 1500));
       
@@ -388,6 +397,9 @@ void loop() {
           sum2 = 0;
           sum3 = 0;
           sum4 = 0;
+          sumX = 0;
+          sumY = 0;
+          sumT = 0;
         }
         else if(digitalRead(LIM6) == 0 && digitalRead(LIM1) == 1){
           kinematic(0,0,-2.5,0,0);
@@ -395,6 +407,9 @@ void loop() {
           sum2 = 0;
           sum3 = 0;
           sum4 = 0;
+          sumX = 0;
+          sumY = 0;
+          sumT = 0;
         }
         else if(digitalRead(LIM1) == 1 && digitalRead(LIM6) == 1){
           kinematic(0,2,0,0,1);

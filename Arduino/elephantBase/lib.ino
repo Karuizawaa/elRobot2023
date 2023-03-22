@@ -232,7 +232,7 @@ void PID() {
   }
   sumT += errT;
   PIDt = KPt * errT + KIt * sumT * deltaT;
-  PIDt = fmaxf(-3.7, fminf(PIDt, 3.7));
+  PIDt = fmaxf(-1.1, fminf(PIDt, 1.1));
 
   motor1(PID1);
   motor2(PID2);
