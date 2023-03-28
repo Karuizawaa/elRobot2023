@@ -41,3 +41,22 @@ void toStep(int langkah, int kecepatan) {
     delayMicroseconds(kecepatan); // ganti delay untuk mempercepat motor
   }
 }
+
+void smoothing() {
+  falconSmoothed = (setPoint * 0.0005) + (falconPrev * 0.9995);
+  falconPrev = falconSmoothed;
+}
+
+void motor1(float input) {
+  if (input < 0) {
+    digitalWrite(CW1, 1);
+    digitalWrite(CCW1, 0);
+  }
+  else if (input > 0) {
+    digitalWrite(CW1, 0);
+    digitalWrite(CCW1, 1);
+  }
+  input = fminf(fmaxf(input, -PWMMAX), PWMMAX); //batas
+  input = abs(input);
+  analogWrite(PWMM1, input);
+}
