@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/karuizawa/ros_ws/src/robot/src/dirCase.cpp" "/home/karuizawa/ros_ws/build/robot/CMakeFiles/kondisi.dir/src/dirCase.cpp.o"
+  "/home/barelang/ros_ws/src/robot/src/dirCase.cpp" "/home/barelang/ros_ws/build/robot/CMakeFiles/kondisi.dir/src/dirCase.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

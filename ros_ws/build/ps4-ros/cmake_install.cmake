@@ -1,8 +1,8 @@
-# Install script for directory: /home/karuizawa/ros_ws/src/ps4-ros
+# Install script for directory: /home/barelang/ros_ws/src/ps4-ros
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/karuizawa/ros_ws/install")
+  set(CMAKE_INSTALL_PREFIX "/home/barelang/ros_ws/install")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -38,17 +38,17 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/karuizawa/ros_ws/build/ps4-ros/catkin_generated/installspace/ps4_ros.pc")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/barelang/ros_ws/build/ps4-ros/catkin_generated/installspace/ps4_ros.pc")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ps4_ros/cmake" TYPE FILE FILES
-    "/home/karuizawa/ros_ws/build/ps4-ros/catkin_generated/installspace/ps4_rosConfig.cmake"
-    "/home/karuizawa/ros_ws/build/ps4-ros/catkin_generated/installspace/ps4_rosConfig-version.cmake"
+    "/home/barelang/ros_ws/build/ps4-ros/catkin_generated/installspace/ps4_rosConfig.cmake"
+    "/home/barelang/ros_ws/build/ps4-ros/catkin_generated/installspace/ps4_rosConfig-version.cmake"
     )
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ps4_ros" TYPE FILE FILES "/home/karuizawa/ros_ws/src/ps4-ros/package.xml")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ps4_ros" TYPE FILE FILES "/home/barelang/ros_ws/src/ps4-ros/package.xml")
 endif()
 

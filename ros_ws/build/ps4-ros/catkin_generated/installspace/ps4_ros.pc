@@ -1,4 +1,4 @@
-prefix=/home/karuizawa/ros_ws/install
+prefix=/home/barelang/ros_ws/install
 
 Name: ps4_ros
 Description: Description of ps4_ros

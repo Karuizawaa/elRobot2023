@@ -6,7 +6,7 @@
 
 #IncludeRegexTransform: 
 
-/home/karuizawa/ros_ws/src/ps4-ros/src/ps4_ros.cpp
+/home/barelang/ros_ws/src/ps4-ros/src/ps4_ros.cpp
 string
 -
 ros/ros.h
@@ -16,11 +16,11 @@ sensor_msgs/Joy.h
 geometry_msgs/Twist.h
 -
 std_msgs/Bool.h
-/home/karuizawa/ros_ws/src/ps4-ros/src/std_msgs/Bool.h
+/home/barelang/ros_ws/src/ps4-ros/src/std_msgs/Bool.h
 std_msgs/Float32.h
-/home/karuizawa/ros_ws/src/ps4-ros/src/std_msgs/Float32.h
+/home/barelang/ros_ws/src/ps4-ros/src/std_msgs/Float32.h
 std_msgs/UInt8.h
-/home/karuizawa/ros_ws/src/ps4-ros/src/std_msgs/UInt8.h
+/home/barelang/ros_ws/src/ps4-ros/src/std_msgs/UInt8.h
 
 /opt/ros/noetic/include/geometry_msgs/Twist.h
 string

@@ -1,4 +1,4 @@
-prefix=/home/karuizawa/ros_ws/install
+prefix=/home/barelang/ros_ws/install
 
 Name: robot
 Description: Description of robot

@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/karuizawa/ros_ws/devel/lib/ps4_ros/ps4_ros"
-  "/home/karuizawa/ros_ws/devel/lib/ps4_ros/ps4_ros.pdb"
+  "/home/barelang/ros_ws/devel/lib/ps4_ros/ps4_ros"
+  "/home/barelang/ros_ws/devel/lib/ps4_ros/ps4_ros.pdb"
   "CMakeFiles/ps4_ros.dir/src/ps4_ros.cpp.o"
 )
 

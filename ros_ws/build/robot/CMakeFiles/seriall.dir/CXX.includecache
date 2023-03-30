@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/barelang/ros_ws/src/robot/src/seriall.cpp
+stdio.h
+-
+string.h
+-
+fcntl.h
+-
+errno.h
+-
+termios.h
+-
+unistd.h
+-
+stdint.h
+/home/barelang/ros_ws/src/robot/src/stdint.h
+

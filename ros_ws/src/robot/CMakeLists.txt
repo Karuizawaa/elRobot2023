@@ -8,7 +8,6 @@ project(robot)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  nav_msgs
   roscpp
   rospy
   std_msgs
@@ -71,7 +70,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Generate added messages and services with any dependencies listed here
 # generate_messages(
 #   DEPENDENCIES
-#   nav_msgs#   std_msgs
+#   std_msgs
 # )
 
 ################################################
@@ -106,7 +105,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES robot
-#  CATKIN_DEPENDS nav_msgs roscpp rospy std_msgs
+#  CATKIN_DEPENDS roscpp rospy std_msgs
 #  DEPENDS system_lib
 )
 
@@ -134,6 +133,15 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
+# add_executable(${PROJECT_NAME}_node src/robot_node.cpp)
+add_executable(seriall src/seriall.cpp)
+add_executable(dababy src/pubb.cpp)
+add_executable(juice src/subb.cpp)
+add_executable(yoasobi src/frobot.cpp)
+add_executable(deni src/fcomp.cpp)
+add_executable(razer src/robocomm.cpp)
+add_executable(coba src/UDPServer.cpp)
+add_executable(ririn src/pub.cpp)
 add_executable(kondisi src/dirCase.cpp)
 
 ## Rename C++ executable without prefix
@@ -150,8 +158,15 @@ add_executable(kondisi src/dirCase.cpp)
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+target_link_libraries(seriall ${catkin_LIBRARIES})
+target_link_libraries(dababy ${catkin_LIBRARIES})
+target_link_libraries(juice ${catkin_LIBRARIES})
+target_link_libraries(yoasobi ${catkin_LIBRARIES})
+target_link_libraries(deni ${catkin_LIBRARIES})
+target_link_libraries(razer ${catkin_LIBRARIES})
+target_link_libraries(coba ${catkin_LIBRARIES})
+target_link_libraries(ririn ${catkin_LIBRARIES})
 target_link_libraries(kondisi ${catkin_LIBRARIES})
-
 #############
 ## Install ##
 #############
@@ -203,7 +218,6 @@ target_link_libraries(kondisi ${catkin_LIBRARIES})
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
-
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)

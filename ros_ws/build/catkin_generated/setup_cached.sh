@@ -7,4 +7,4 @@
 # new environment variables
 
 # modified environment variables
-export PWD='/home/karuizawa/ros_ws/build'
+export PWD='/home/barelang/ros_ws/build'

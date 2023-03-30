@@ -6,13 +6,13 @@
 
 #IncludeRegexTransform: 
 
-/home/karuizawa/ros_ws/src/robot/src/dirCase.cpp
+/home/barelang/ros_ws/src/robot/src/dirCase.cpp
 iostream
-/home/karuizawa/ros_ws/src/robot/src/iostream
+/home/barelang/ros_ws/src/robot/src/iostream
 ros/ros.h
-/home/karuizawa/ros_ws/src/robot/src/ros/ros.h
+/home/barelang/ros_ws/src/robot/src/ros/ros.h
 std_msgs/UInt8.h
-/home/karuizawa/ros_ws/src/robot/src/std_msgs/UInt8.h
+/home/barelang/ros_ws/src/robot/src/std_msgs/UInt8.h
 
 /opt/ros/noetic/include/ros/advertise_options.h
 ros/forwards.h

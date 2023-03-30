@@ -1,0 +1,8 @@
+prefix=/home/barelang/ros_ws/devel
+
+Name: ros_odrive
+Description: Description of ros_odrive
+Version: 0.0.1
+Cflags: -I/home/barelang/ros_ws/devel/include -I/home/barelang/ros_ws/src/ros_odrive/include
+Libs: -L${prefix}/lib -lrt -lpthread -lusb-1.0 -ljsoncpp
+Requires: message_runtime roscpp std_msgs

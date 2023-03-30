@@ -1,6 +1,6 @@
 file(REMOVE_RECURSE
-  "/home/karuizawa/ros_ws/devel/lib/robot/kondisi"
-  "/home/karuizawa/ros_ws/devel/lib/robot/kondisi.pdb"
+  "/home/barelang/ros_ws/devel/lib/robot/kondisi"
+  "/home/barelang/ros_ws/devel/lib/robot/kondisi.pdb"
   "CMakeFiles/kondisi.dir/src/dirCase.cpp.o"
 )
 

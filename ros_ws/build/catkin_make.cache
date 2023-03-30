@@ -1,2 +1,2 @@
-ps4-ros:robot
--DCATKIN_DEVEL_PREFIX=/home/karuizawa/ros_ws/devel -DCMAKE_INSTALL_PREFIX=/home/karuizawa/ros_ws/install -G Unix Makefiles
+ps4-ros:robot:ros_odrive
+-DCATKIN_DEVEL_PREFIX=/home/barelang/ros_ws/devel -DCMAKE_INSTALL_PREFIX=/home/barelang/ros_ws/install -G Unix Makefiles

@@ -14,7 +14,7 @@ int main(int argc, char **argv)
    * You must call one of the versions of ros::init() before using any other
    * part of the ROS system.
    */
-  ros::init(argc, argv, "talker");
+  ros::init(argc, argv, "talker", ros::InitOption::NoSigintHandler);
 
   /**
    * NodeHandle is the main access point to communications with the ROS system.
@@ -42,7 +42,7 @@ int main(int argc, char **argv)
    */
   ros::Publisher chatter_pub = n.advertise<std_msgs::UInt8>("case", 1000);
 
-  ros::Rate loop_rate(10);
+  ros::Rate loop_rate(100);
 
   /**
    * A count of how many messages we have sent. This is used to create
@@ -71,6 +71,7 @@ int main(int argc, char **argv)
     chatter_pub.publish(caseRobot);
 
     ros::spinOnce();
+    loop_rate.sleep();
   }
 
 

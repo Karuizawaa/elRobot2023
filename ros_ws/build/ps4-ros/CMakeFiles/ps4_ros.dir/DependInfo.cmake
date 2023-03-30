@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/karuizawa/ros_ws/src/ps4-ros/src/ps4_ros.cpp" "/home/karuizawa/ros_ws/build/ps4-ros/CMakeFiles/ps4_ros.dir/src/ps4_ros.cpp.o"
+  "/home/barelang/ros_ws/src/ps4-ros/src/ps4_ros.cpp" "/home/barelang/ros_ws/build/ps4-ros/CMakeFiles/ps4_ros.dir/src/ps4_ros.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
@@ -17,7 +17,7 @@ set(CMAKE_TARGET_DEFINITIONS_CXX
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
-  "/home/karuizawa/ros_ws/src/ps4-ros/include"
+  "/home/barelang/ros_ws/src/ps4-ros/include"
   "/opt/ros/noetic/include"
   "/opt/ros/noetic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"
   )

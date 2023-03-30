@@ -1,0 +1,5 @@
+<launch>
+    <node name="btds4" pkg ="robot" type="ds4connect.py" />
+    <node name="serial" pkg="robot" type="seriaal.py" />
+    <node name="ds4" pkg="robot" type="stikk.py" output="screen" />
+</launch>
