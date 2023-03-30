@@ -1,10 +1,11 @@
-#define dirPin 3
-#define stepPin 2
+#define dirPin 9
+#define stepPin 8
 #define stepsPerRevolution 800 // sesuaikan dengan settingan SW1-SW3 pada modul motor driver
 long sekarang;
 void setup() {
   pinMode(stepPin, OUTPUT);
   pinMode(dirPin, OUTPUT);
+  Serial.begin(115200);
 
 }
 
@@ -24,12 +25,13 @@ void toStep(int langkah, int kecepatan) {
     digitalWrite(stepPin, LOW);
     delayMicroseconds(kecepatan); // ganti delay untuk mempercepat motor
   }
+  
 }
+
+int masuk;
 void loop() {
-  toStep(800, 1000);
-  if (sekarang == 800) {
-    delay(2000);
-    toStep(400, 2000);
-    delay(2000);
+  if(Serial.available()){
+    masuk = Serial.parseInt();
   }
+  toStep(masuk, 200);
 }

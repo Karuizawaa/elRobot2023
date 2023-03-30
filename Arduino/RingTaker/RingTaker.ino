@@ -101,7 +101,7 @@ ros::Subscriber<std_msgs::UInt8> subsCase ("case", recCase);
 ros::Subscriber<std_msgs::Bool> sublsat ("lsatu", lsat);
 
 void setup() {
-  falcon.attach(4);
+  falcon.attach(12);
   pinMode(PN1, OUTPUT);
   pinMode(PN2, OUTPUT);
   //  pinMode(PN3, OUTPUT);
