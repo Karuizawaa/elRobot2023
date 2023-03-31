@@ -103,8 +103,8 @@ ros::Publisher IMU("head", &hadap);
 
 
 
-#define RADIUSMTR 0.35145 //satuan meter
-#define RADIUSBAN 0.1/2
+#define RADIUSMTR 0.36286 //satuan meter
+#define RADIUSBAN 0.100/2
 #define KBAN 2*M_PI*RADIUSBAN
 
 #define PWMMAX 200
@@ -122,11 +122,11 @@ ros::Publisher IMU("head", &hadap);
 //MOTOR 2
 #define KP2 14
 #define KI2 8
-#define encA2 3
-#define encB2 23
-#define pwmM2 5
-#define cwM2  35
-#define ccwM2 33
+#define encA2 20
+#define encB2 43
+#define pwmM2 8
+#define cwM2  26
+#define ccwM2 28
 #define POSM2   135
 
 //MOTOR 3
@@ -145,8 +145,8 @@ ros::Publisher IMU("head", &hadap);
 #define encA4 19
 #define encB4 41
 #define pwmM4 7
-#define cwM4  22 
-#define ccwM4 24
+#define cwM4  51
+#define ccwM4 53
 #define POSM4 315
 
 #define LIM1 9 // belum fix
@@ -161,13 +161,13 @@ ros::Publisher IMU("head", &hadap);
 #define LIM10 48
 
 
-#define KPx 2
-#define KIx 0
+#define KPx 0.7
+#define KIx 0.2
 
-#define KPy 2
-#define KIy 0
+#define KPy 0.7
+#define KIy 0.2
 
-#define KPt 1.0
+#define KPt 1
 #define KIt 0
 
 #define PPR 3840
@@ -198,7 +198,7 @@ char bacaSer;
 bool pnu1, pnu2, pnu3, pnu4;
 float x, y;
 unsigned long curr;
-int x_temp, y_temp;
+float x_temp, y_temp;
 
 
 struct gy25 {
@@ -236,7 +236,7 @@ void kalibrasi(){
 
 void setup() {
   Serial.begin(115200);
-//  kalibrasi();
+  kalibrasi();
 
   pinMode(13, OUTPUT);
   pinMode(encA1, INPUT);
@@ -283,8 +283,8 @@ void setup() {
   pinMode(LIM9, INPUT_PULLUP);
   pinMode(LIM10, INPUT_PULLUP);
 
-//      nh.initNode();
-  //  nh.advertise(IMU);
+      nh.initNode();
+//    nh.advertise(IMU);
   //      nh.subscribe(subsq);
   //      nh.subscribe(subX);
   //      nh.subscribe(subO);
@@ -297,31 +297,40 @@ void setup() {
   //      nh.subscribe(sublY);
   //      nh.subscribe(subl2);
   //      nh.subscribe(subr2);
-//      nh.subscribe(subsCase);
+      nh.subscribe(subsCase);
 }
 
 
 void loop() {
+//  motor1(100);
+//  motor2(100);
+//  motor3(100);
+//  motor4(100);
+//  setradPS3 = 2 * M_PI * 1;
+//  PID();
   // auto
     nh.spinOnce();
-//    Serial.print(digitalRead(LIM1)); Serial.print(" "); Serial.print(digitalRead(LIM2)); Serial.print(" "); Serial.print(digitalRead(LIM3)); Serial.print(" "); Serial.print(digitalRead(LIM4)); Serial.print(" "); Serial.print(digitalRead(LIM5)); Serial.print(" "); Serial.println(digitalRead(LIM6));
+//    Serial.print(digitalRead(LIM1)); Serial.print(" "); Serial.print(digitalRead(LIM2)); Serial.print(" "); Serial.print(digitalRead(LIM3)); Serial.print(" "); Serial.print(digitalRead(LIM4)); Serial.print(" "); Serial.print(digitalRead(LIM5)); Serial.print(" "); Serial.print(digitalRead(LIM6)); Serial.print(" "); Serial.print(digitalRead(LIM7)); Serial.print(" "); Serial.print(digitalRead(LIM8)); Serial.print(" "); Serial.print(digitalRead(LIM9)); Serial.print(" "); Serial.println(digitalRead(LIM10));
 //    Serial.print(enc1);Serial.print("\t");Serial.print(enc2);Serial.print("\t");Serial.print(enc3);Serial.print("\t");Serial.println(enc4);
   updateCMPS();
   calculatePos();
-  Serial.print(x); Serial.print("\t"); Serial.println(y);
+//  Serial.print(x); Serial.print("\t"); Serial.print(y); Serial.print("\t"); Serial.println(cmps.heading);
 
   //ambil ring kiri
   if (caseRobot == 1){
-    if (y > -9.2) {
+    if (y > -8.7) {
       setPos(0, -10.0, 0);
     }
-    if (y < -9.2) {
+    if (y < -8.7) {
       sum1 = 0;
       sum2 = 0;
       sum3 = 0;
       sum4 = 0;
+      sumX = 0;
+      sumY = 0;
+      sumT = 0;
       kinematic(0,0,0,0,0);
-      waitMillis(1000);
+      waitMillis(200);
 
       //nyender fence belakang
       while (!(digitalRead(LIM4) == 0 && digitalRead(LIM5) == 0)) {
@@ -332,18 +341,24 @@ void loop() {
         x_temp = x;
       }
       kinematic(0, 0, 0, 0, 0);
-      waitMillis(1500);
+      sumX = 0;
+      sumY = 0;
+      sumT = 0;
+      waitMillis(200);
       
       //nyender fence samping
-      while (!(digitalRead(LIM3) == 0 && digitalRead(LIM2) == 0)) {
+      while (!(digitalRead(LIM3) == 0 && digitalRead(LIM8) == 0)) {
         calculatePos();
         nh.spinOnce();
-        kinematic(0, -3, 0, 0, 1);
+        kinematic(0, -2.5, 0, 0, 1);
       }
       sum1 = 0;
       sum2 = 0;
       sum3 = 0;
       sum4 = 0;
+      sumX = 0;
+      sumY = 0;
+      sumT = 0;
       XSmoothed = x;
       YSmoothed = y;
       XPrev = x;
@@ -358,10 +373,57 @@ void loop() {
     }
   }
   if(caseRobot == 2){
-    if(x > x_temp - 3){
-      setPos(x_temp - 3, y_temp + 3, 45);
+    if(x > x_temp - 1){
+      setPos(x_temp -2, y_temp + 2.1, 45);
     }
+    else {
+      
+      curr = millis();
+      do{
+        updateCMPS();
+        nh.spinOnce();
+        calculatePos();
+        kinematic(0,0,(45 - cmps.heading) * 0.6 , 0, 1);
+      }
+      while (!(millis() - curr > 1500));
+      
+      while(!(digitalRead(LIM1) == 0 && digitalRead(LIM6) == 0)){
+        nh.spinOnce();
+        calculatePos();
+        updateCMPS();
+        if(digitalRead(LIM1) == 0 && digitalRead(LIM6) == 1){
+          kinematic(0,0,2.5,0,0);
+          sum1 = 0;
+          sum2 = 0;
+          sum3 = 0;
+          sum4 = 0;
+          sumX = 0;
+          sumY = 0;
+          sumT = 0;
+        }
+        else if(digitalRead(LIM6) == 0 && digitalRead(LIM1) == 1){
+          kinematic(0,0,-2.5,0,0);
+          sum1 = 0;
+          sum2 = 0;
+          sum3 = 0;
+          sum4 = 0;
+          sumX = 0;
+          sumY = 0;
+          sumT = 0;
+        }
+        else if(digitalRead(LIM1) == 1 && digitalRead(LIM6) == 1){
+          kinematic(0,2,0,0,1);
+        }
+      }
+      kinematic(0,0,0,0,0);
+      while(caseRobot == 2){
+        nh.spinOnce();
+        calculatePos();
+      }
+    }
+    
   }
+    
 
   //ambil ring kanan
   if (caseRobot == 8) {
@@ -377,7 +439,7 @@ void loop() {
       waitMillis(1000);
 
       //nyender fence belakang
-      while (!(digitalRead(LIM7) == 0 && digitalRead(LIM8) == 0)) {
+      while (!(digitalRead(LIM7) == 0 && digitalRead(LIM2) == 0)) {
         calculatePos();
         nh.spinOnce();
         kinematic(-2.5, 0, 0, 0, 1);
@@ -387,10 +449,10 @@ void loop() {
       waitMillis(1500);
 
       //nyender fence samping
-      while (!(digitalRead(LIM2) == 0 && digitalRead(LIM3) == 0)) {
+      while (!(digitalRead(LIM2) == 0 && digitalRead(LIM8) == 0)) {
         calculatePos();
         nh.spinOnce();
-        kinematic(0, -3, 0, 0, 1);
+        kinematic(0, -2.5, 0, 0, 1);
       }
       sum1 = 0;
       sum2 = 0;
