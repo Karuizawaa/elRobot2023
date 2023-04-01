@@ -48,6 +48,7 @@ class Device{
 	int sizeReceive;
 	float sum;
 	bool limitSwitch[10];
+	float hadap;
 	socklen_t len;
 	std::chrono::steady_clock::time_point begin;
 	std::chrono::steady_clock::time_point end;
@@ -72,15 +73,12 @@ class Device{
 					0, ( struct sockaddr *) &motor,
 					&len);
 		encStr[sizeReceive] = '\0';
-		if(encStr[0] == '!'){
-			enc = atoi(encStr);
+		enc = atoi(encStr);
+
+		for(int i = 0; i < 10; i++){
+			limitSwitch[i] = atoi((const char*)encStr[i]);
 		}
-		else if(encStr[0] == '#'){
-			for(int i = 0; i < 11; i++){
-				limitSwitch[i] = encStr[i+1];
-			}
-		}
-		
+		hadap = atof(strtok(encStr+11,"#"));
 		return(encStr);
 	}
 
@@ -148,10 +146,10 @@ void kinematic(float vX, float vY, float theta, float heading) {
 	float setradPS3 = (-sin(toRad(POSM3 + heading)) * vX + cos(toRad(POSM3 + heading)) * vY + theta * RADIUSMTR) / RADIUSBAN;
 	float setradPS4 = (-sin(toRad(POSM4 + heading)) * vX + cos(toRad(POSM4 + heading)) * vY + theta * RADIUSMTR) / RADIUSBAN;
 
-	roda1.send(sockfd, std::to_string(roda1.PID(1,1,setradPS1,PPR)));
-	roda2.send(sockfd, std::to_string(roda1.PID(1,1,setradPS2,PPR)));
-	roda3.send(sockfd, std::to_string(roda1.PID(1,1,setradPS3,PPR)));
-	roda4.send(sockfd, std::to_string(roda1.PID(1,1,setradPS4,PPR)));  
+	roda1.send(sockfd, std::to_string(roda1.PID(14,8,setradPS1,PPR)));
+	roda2.send(sockfd, std::to_string(roda1.PID(14,8,setradPS2,PPR)));
+	roda3.send(sockfd, std::to_string(roda1.PID(14,8,setradPS3,PPR)));
+	roda4.send(sockfd, std::to_string(roda1.PID(14,8,setradPS4,PPR)));  
 }
 
 void calculatePos() {
@@ -195,14 +193,14 @@ void setPos(float POSX, float POSY, float HADAP) {
 	//  PIDy = fmaxf(-7.3, fminf(PIDy, 7.3));
 
 
-	float errT = TSmoothed - MEGA.enc;
+	float errT = TSmoothed - MEGA.hadap;
 	if(errT > 180 || errT < -180){
-	errT = MEGA.enc - TSmoothed;
+	errT = MEGA.hadap - TSmoothed;
 	}
 	sumT += errT;
 	float PIDt = KPt * errT + KIt * sumT * deltaT;
 	PIDt = fmaxf(-3.7, fminf(PIDt, 3.7));
-	kinematic(PIDx, PIDy, PIDt, MEGA.enc);
+	kinematic(PIDx, PIDy, PIDt, MEGA.hadap);
 	akhir = std::chrono::steady_clock::now();
 }
 
