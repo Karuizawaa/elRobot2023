@@ -1,10 +1,10 @@
 /*
- * Created by ArduinoGetStarted.com
- *
- * This example code is in the public domain
- *
- * Tutorial page: https://arduinogetstarted.com/tutorials/arduino-ethernet-shield-2
- */
+   Created by ArduinoGetStarted.com
+
+   This example code is in the public domain
+
+   Tutorial page: https://arduinogetstarted.com/tutorials/arduino-ethernet-shield-2
+*/
 
 #include <SPI.h>
 #include <Ethernet.h>
@@ -12,7 +12,7 @@
 
 #include "Servo.h"
 
-Servo falcon, B3;
+Servo B3;
 #define pinB3 8
 
 //encoder
@@ -89,12 +89,14 @@ unsigned int localPort = 8888;
 char packetBuffer[512];  // buffer to hold incoming packet,
 
 long encoder;
-char headStr[10];
+char headStr[128];
 unsigned long previousMillis = 0;
 int pwm;
 unsigned long int encFalcon, lastFalcon;
 
 volatile float prevT;
+
+int sekarang; // posisi step sekarang
 
 #define KPf 1
 #define KIf 1
@@ -108,35 +110,10 @@ struct gy25 {
 } cmps;
 
 
-void kalibrasiIMU(){
-  Serial3.begin(115200);
-
-  Serial.println("mulai kalibret");
-
-  delay(3000);
-
-  Serial3.write(0xA5);
-  Serial3.write(0x54);
-
-  delay(1000); // Jeda sebelum kalibrasi heading
-
-  // Kalibrasi Heading
-  Serial3.write(0xA5);
-  Serial3.write(0x55);
-
-  delay(100); // Jeda sebelum konfigurasi output
-
-  // Output ASCII
-  Serial3.write(0xA5);
-  Serial3.write(0x53);
-
-  delay(100); // Jeda sebentar
-}
-
 void setup() {
   Serial.begin(9600);
 
-  falcon.attach(6);
+  B3.attach(pwmM2);
 
   pinMode(LIM1, INPUT_PULLUP);
   pinMode(LIM2, INPUT_PULLUP);
@@ -148,36 +125,40 @@ void setup() {
   pinMode(LIM8, INPUT_PULLUP);
   pinMode(LIM9, INPUT_PULLUP);
   pinMode(LIM10, INPUT_PULLUP);
-  
+
   // initialize the Ethernet shield using the static IP address:
   Ethernet.begin(mac, ip, myDns, gateway, subnet);
 
   // initialize Udp communication on port
   Udp.begin(localPort);
 
-//  attachInterrupt(digitalPinToInterrupt(encZ), rpmFalcon, RISING);
-  
 }
 
 
-void loop(){
-  if(int n = Udp.parsePacket()){
-    Udp.read(packetBuffer,6);  // buffer to hold incoming packet,
+void loop() {
+  if (int n = Udp.parsePacket()) {
+    Udp.read(packetBuffer, 3); // buffer to hold incoming packet,
     packetBuffer[n] = '\0';
     pwm = atoi(packetBuffer); //write microseconds
+    toStep(lantaitoStep(pwm),200);
+    servo(90);
+    while(digitalRead(LIM10) == 1){
+      //motor maju kebelakang
+    }
+    servo(0);
+    while(digitalRead(LIM9) == 1){
+      //motor maju kedepan
+    }
     Udp.flush();
   }
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= 1) {
-      updateCMPS();
-      previousMillis = currentMillis;
-      Udp.beginPacket(IPAddress(192,168,0,3),5555);
-      sprintf(headStr, "%d%d%d%d%d%d%d%d%d%d=%d#", digitalRead(LIM1), digitalRead(LIM2), digitalRead(LIM3),
-        digitalRead(LIM4), digitalRead(LIM5), digitalRead(LIM6), digitalRead(LIM7), digitalRead(LIM8),
-        digitalRead(LIM9), digitalRead(LIM10)), cmps.heading;
-      
-      
-      
+    updateCMPS();
+    previousMillis = currentMillis;
+    Udp.beginPacket(IPAddress(192, 168, 0, 3), 5555);
+    sprintf(headStr, "%d%d%d%d%d%d%d%d%d%d=%f#", digitalRead(LIM1), digitalRead(LIM2), digitalRead(LIM3),
+            digitalRead(LIM4), digitalRead(LIM5), digitalRead(LIM6), digitalRead(LIM7), digitalRead(LIM8),
+            digitalRead(LIM9), digitalRead(LIM10)), cmps.heading;
+    Udp.endPacket();
   }
-  falcon.writeMicroseconds(pwm);
 }
