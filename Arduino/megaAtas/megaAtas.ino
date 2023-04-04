@@ -79,7 +79,7 @@ Servo falcon, B3;
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
 // change the IP address, subnet mask, gateway's IP address, and DNS server's IP address depending on your network
-IPAddress ip(192, 168, 0, 5);           //Setting IP Address
+IPAddress ip(192, 168, 0, 99);           //Setting IP Address
 IPAddress gateway(192, 168, 0, 1);
 IPAddress subnet(255, 255, 255, 0);
 IPAddress myDns(8, 8, 8, 8);
@@ -89,7 +89,7 @@ unsigned int localPort = 8888;
 char packetBuffer[512];  // buffer to hold incoming packet,
 
 long encoder;
-char headStr[10];
+char headStr[20];
 unsigned long previousMillis = 0;
 int pwm;
 unsigned long int encFalcon, lastFalcon;
@@ -105,6 +105,7 @@ struct gy25 {
   char buffer[50];
   int counter;
   float heading;
+  int headInt;
 } cmps;
 
 
@@ -134,7 +135,7 @@ void kalibrasiIMU(){
 }
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   falcon.attach(6);
 
@@ -154,6 +155,7 @@ void setup() {
 
   // initialize Udp communication on port
   Udp.begin(localPort);
+  kalibrasiIMU();
 
 //  attachInterrupt(digitalPinToInterrupt(encZ), rpmFalcon, RISING);
   
@@ -161,23 +163,27 @@ void setup() {
 
 
 void loop(){
-  if(int n = Udp.parsePacket()){
-    Udp.read(packetBuffer,6);  // buffer to hold incoming packet,
-    packetBuffer[n] = '\0';
-    pwm = atoi(packetBuffer); //write microseconds
-    Udp.flush();
-  }
+//  Udp.beginPacket(IPAddress(192,168,0,55),5555);
+//  if(int n = Udp.parsePacket()){
+//    Udp.read(packetBuffer,6);  // buffer to hold incoming packet,
+//    packetBuffer[n] = '\0';
+//    pwm = atoi(packetBuffer); //write microseconds
+//    Udp.flush();
+//  }
   unsigned long currentMillis = millis();
-  if (currentMillis - previousMillis >= 1) {
-      updateCMPS();
-      previousMillis = currentMillis;
-      Udp.beginPacket(IPAddress(192,168,0,3),5555);
-      sprintf(headStr, "%d%d%d%d%d%d%d%d%d%d=%d#", digitalRead(LIM1), digitalRead(LIM2), digitalRead(LIM3),
-        digitalRead(LIM4), digitalRead(LIM5), digitalRead(LIM6), digitalRead(LIM7), digitalRead(LIM8),
-        digitalRead(LIM9), digitalRead(LIM10)), cmps.heading;
-      
-      
-      
-  }
+//  if (currentMillis - previousMillis >= 1) {
+//      
+//      previousMillis = currentMillis;
+//      Udp.beginPacket(IPAddress(192,168,0,55),5555);
+//      sprintf(headStr, "%d%d%d%d%d%d%d%d%d%d=%d#", digitalRead(LIM1), digitalRead(LIM2), digitalRead(LIM3),
+//        digitalRead(LIM4), digitalRead(LIM5), digitalRead(LIM6), digitalRead(LIM7), digitalRead(LIM8),
+//        digitalRead(LIM9), digitalRead(LIM10)), cmps.headInt;
+//      Udp.write(headStr);
+//      Udp.endPacket();
+//      
+//      
+//      
+//  }
+  updateCMPS();
   falcon.writeMicroseconds(pwm);
 }

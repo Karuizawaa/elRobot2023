@@ -15,16 +15,31 @@ void updateCMPS() {
     if (tmp == '\n') { // Langkah 1
       cmps.buffer[cmps.counter] = 0; // Karakter terminator
       cmps.heading = atof(strtok(cmps.buffer + 5, ",")); // Langkah 2-4
+      cmps.headInt = (int)cmps.heading;
       cmps.counter = 0;
     }
     
     
   }
-  char hadap[6];
-  sprintf(headStr , "!%d", cmps.heading);
-  Udp.beginPacket(IPAddress(192,168,0,3),5555);
-  Udp.write(headStr);
-  Udp.endPacket();
+  bool sw1 = digitalRead(LIM1);
+  bool sw2 = digitalRead(LIM2);
+  bool sw3 = digitalRead(LIM3);
+  bool sw4 = digitalRead(LIM4);
+  bool sw5 = digitalRead(LIM5);
+  bool sw6 = digitalRead(LIM6);
+  bool sw7 = digitalRead(LIM7);
+  bool sw8 = digitalRead(LIM8);
+  bool sw9 = digitalRead(LIM9);
+  bool sw10 = digitalRead(LIM10);
+  Udp.beginPacket(IPAddress(192,168,0,55),5555);
+    sprintf(headStr, "%d%d%d%d%d%d%d%d%d%d=%s~", sw1, sw2, sw3, sw4, sw5, sw6, sw7, sw8, sw9, sw10, strtok(cmps.buffer + 5, ","));
+//sprintf(headStr, "%d", cmps.headInt);
+      Udp.write(headStr);
+      Udp.endPacket();
+//  Udp.beginPacket(IPAddress(192,168,0,55),5555);
+//  Udp.write(hadap);
+//  Udp.endPacket();
+  Serial.println(cmps.heading);
 }
 
 void servo(int sudut){
