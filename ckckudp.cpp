@@ -43,44 +43,56 @@ std::string convertToString(char* a, int size);
 
 class Device{
 	public:
-	struct sockaddr_in motor;
+	struct sockaddr_in alamat, cli_addr;
 	long int enc, lastenc, prevenc;
+	char buffer[MAXLINE];
 	char terima[MAXLINE];
+	char terimaSpesifik[MAXLINE];
 	int sizeReceive;
 	float sum;
 	float hadap;
+	std::string deviceIP;
 	socklen_t len;
 	std::chrono::steady_clock::time_point begin;
 	std::chrono::steady_clock::time_point end;
 
 	Device(char *IP, unsigned long port){
-		memset(&motor, 0, sizeof(motor));
-		Device::motor.sin_family = AF_INET;
-		inet_pton(AF_INET, IP, &motor.sin_addr.s_addr);
-		motor.sin_port = htons(port);
-		len = sizeof(motor);
+		memset(&alamat, 0, sizeof(alamat));
+		memset(&cli_addr, 0, sizeof(cli_addr));
+		deviceIP = IP;
+		Device::alamat.sin_family = AF_INET;
+		inet_pton(AF_INET, IP, &alamat.sin_addr.s_addr);
+		alamat.sin_port = htons(port);
+		len = sizeof(alamat);
+		
 	}
 
 	/* Send UDP */
 	void send(int soket, std::string pesan){
 		sendto(soket, pesan.c_str(), strlen(pesan.c_str()),
-			MSG_CONFIRM, (const struct sockaddr *) &motor,
+			MSG_CONFIRM, (const struct sockaddr *) &alamat,
 				len);
 	}
 	/* Receive UDP */
-	std::string receive(int soket){
-		sizeReceive = recvfrom(soket, (char *)terima, MAXLINE,
-					0, ( struct sockaddr *) &motor,
-					&len);
-		terima[sizeReceive] = '\0';
-		enc = atoi(terima);
-		// strcpy(masukan, terima);
-		hadap = atof(strtok(terima+11, "~"));
-		
-		return(terima);
+	void receive(int soket){
+		socklen_t sender_addr_len = sizeof(cli_addr);
+		sizeReceive = recvfrom(soket, (char *)buffer, MAXLINE,
+					0, ( struct sockaddr *) &cli_addr,
+					&sender_addr_len);
+		buffer[sizeReceive] = '\0';
+		std::string senderIP = inet_ntoa(cli_addr.sin_addr);
+		if(senderIP == deviceIP){
+			strncpy(terima, buffer, MAXLINE);
+			enc = atoi(terima);
+		}
+		if(senderIP == "192.168.0.99"){
+			strncpy(terima, buffer, MAXLINE);
+			hadap = atof(strtok(terima+11, "~"));
+		}
+
 	}
 
-	/* PID Process motor */
+	/* PID Process alamat */
 	float PID(int KP, int KI, float setradPS, int PULSEPERREV){
 		begin = std::chrono::steady_clock::now();
 		float nanosec = std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count();
@@ -255,21 +267,27 @@ int main(int argc, char **argv) {
 	struct sockaddr_in servaddr;
 	
 	// Creating socket file descriptor
-	if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0 ) {
+	if ( (sockfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0 ) {
 		perror("socket creation failed");
 		exit(EXIT_FAILURE);
 	}
 	
 	memset(&servaddr, 0, sizeof(servaddr));
-	Device roda1("192.168.0.11", 5555);
-	Device roda2("192.168.0.12", 5555);
+	// extern Device roda1;
+	// extern Device roda2;
+	// extern Device roda3;
+	// extern Device roda4;
+
+	// Device roda1("192.168.0.11", 5555);
+	// Device roda2("192.168.0.12", 5555);
 	Device roda3("192.168.0.13", 5555);
-	Device roda4("192.168.0.14", 5555);
-	Device falcon("192.168.0.15", 5555);
-	Device MEGA("192.168.0.99", 8888);
+	// Device roda4("192.168.0.14", 5555);
+	// Device falcon("192.168.0.15", 5555);
+	// Device MEGA("192.168.0.99", 8888);
 	// Filling server information
 	servaddr.sin_family = AF_INET; // IPv4
-	inet_pton(AF_INET,"192.168.0.55",&servaddr.sin_addr);
+	// inet_pton(AF_INET,"192.168.0.55",&servaddr.sin_addr);
+	servaddr.sin_addr.s_addr = INADDR_ANY;
 	servaddr.sin_port = htons(5555);
 	
 	// Bind the socket with the server address
@@ -280,11 +298,18 @@ int main(int argc, char **argv) {
 		exit(EXIT_FAILURE);
 	}
 	while (1){
-		MEGA.receive(sockfd);
-		std::cout << MEGA.terima << std::endl;
-
+		// MEGA.receive(sockfd);
+		// roda1.receive(sockfd);
+		// roda2.receive(sockfd);
+		roda3.receive(sockfd);
+		// usleep(16000);
+		// roda4.receive(sockfd);
+		// roda3.send(sockfd,"-250");
+		// roda3.send(sockfd, std::to_string(123));
+		// std::cout << roda1.enc << "\t" <<roda2.enc << "\t" <<roda3.enc << "\t" <<roda4.enc << std::endl;
+		std::cout << roda3.terima << std::endl;
 	}
-	// ros::spin();
+	//s ros::spin();
 	// while(1) 
 	// {
 	// 	if (caseRobot == 1){
