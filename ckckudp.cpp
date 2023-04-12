@@ -14,9 +14,9 @@
 #include "chrono"
 #include <bits/stdc++.h>
 
-// #include "ros/ros.h"
-// #include "std_msgs/UInt8.h"
-// #include "std_msgs/Bool.h"
+#include "ros/ros.h"
+#include "std_msgs/UInt8.h"
+#include "std_msgs/Bool.h"
 
 #define PORT	 8080
 #define MAXLINE 1024
@@ -33,25 +33,27 @@
 #define POSM4   315
 
 
-#define KPx		1
-#define KIx		1
-#define KPy		1
-#define KIy		1
-#define KPt		1
-#define KIt		1
+#define KPx		2.1
+#define KIx		0
+#define KPy		2.1
+#define KIy		0
+#define KPt		0.4
+#define KIt		0
 std::string convertToString(char* a, int size);
 
 class Device{
 	public:
 	struct sockaddr_in alamat, cli_addr;
-	long int enc, lastenc, prevenc;
+	// struct timeval t1, t2;
+	long long enc, lastenc, prevenc;
 	char buffer[MAXLINE];
 	char terima[MAXLINE];
 	char terimaSpesifik[MAXLINE];
 	int sizeReceive;
 	float sum;
 	float hadap;
-	std::string deviceIP;
+	float radps;
+	std::string deviceIP, senderIP;
 	socklen_t len;
 	std::chrono::steady_clock::time_point begin;
 	std::chrono::steady_clock::time_point end;
@@ -75,34 +77,39 @@ class Device{
 	}
 	/* Receive UDP */
 	void receive(int soket){
-		socklen_t sender_addr_len = sizeof(cli_addr);
-		sizeReceive = recvfrom(soket, (char *)buffer, MAXLINE,
-					0, ( struct sockaddr *) &cli_addr,
-					&sender_addr_len);
-		buffer[sizeReceive] = '\0';
-		std::string senderIP = inet_ntoa(cli_addr.sin_addr);
-		if(senderIP == deviceIP){
-			strncpy(terima, buffer, MAXLINE);
-			enc = atoi(terima);
+		do{
+
+			socklen_t sender_addr_len = sizeof(cli_addr);
+			sizeReceive = recvfrom(soket, (char *)buffer, MAXLINE,
+						0, ( struct sockaddr *) &cli_addr,
+						&sender_addr_len);
+			buffer[sizeReceive] = '\0';
+			senderIP = inet_ntoa(cli_addr.sin_addr);
 		}
+		while(senderIP != deviceIP);
+			
+		
+		strncpy(terima, buffer, MAXLINE);
+		
 		if(senderIP == "192.168.0.99"){
-			strncpy(terima, buffer, MAXLINE);
+			// strncpy(terima, buffer, MAXLINE);
 			hadap = atof(strtok(terima+11, "~"));
+		}
+		else {
+			enc = atoi(terima);
 		}
 
 	}
 
 	/* PID Process alamat */
-	float PID(int KP, int KI, float setradPS, int PULSEPERREV){
+	int PID(float KP, float KI, float setradPS, float PULSEPERREV){
 		begin = std::chrono::steady_clock::now();
-		float nanosec = std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count();
-		float second = nanosec * pow(10,9);
-		float radps = ((enc - lastenc) * 2 * M_PI / PULSEPERREV) / second;
+		double nanosec = std::chrono::duration_cast<std::chrono::nanoseconds> (begin - end).count();
+		radps = ((enc - lastenc) * 2 * M_PI / PULSEPERREV) / (nanosec*pow(10,-9));
 		lastenc = enc;
 		float error = setradPS - radps;
 		sum += error;
 		end = std::chrono::steady_clock::now();
-		// this->send(sockfd, std::to_string())
 		return(KP * error + KI * sum);
 	}
 };
@@ -123,7 +130,7 @@ std::chrono::steady_clock::time_point mulai;
 std::chrono::steady_clock::time_point akhir;
 
 int sockfd;
-int caseRobot;
+int caseRobot, prevCase;
 
 Device roda1("192.168.0.11", 5555);
 Device roda2("192.168.0.12", 5555);
@@ -132,42 +139,32 @@ Device roda4("192.168.0.14", 5555);
 Device falcon("192.168.0.15", 5555);
 Device MEGA("192.168.0.99", 8888);
 
-// void caseCB(const std_msgs::UInt8::ConstPtr& msg)
-// {
-// 	caseRobot = msg->data;
-// }
-
-// void bacaL1(const std_msgs::Bool::ConstPtr& msg)
-// {
-// 	l1 = msg->data;
-// 	if(l1 == true) lantai++;
-// 	if(lantai > 10) lantai = 0;
-// }
-
-// void bacaO(const std_msgs::Bool::ConstPtr& msg)
-// {
-// 	if(msg->data == true) indexTiang++;
-// }
-
-// void bacaTr(const std_msgs::Bool::ConstPtr& msg)
-// {
-// 	if(msg->data == true) indexTiang--;
-// }
-
-std::string convertToString(char* a, int size)
+void caseCB(const std_msgs::UInt8::ConstPtr& msg)
 {
-    int i;
-    std::string s = "";
-    for (i = 0; i < size; i++) {
-        s = s + a[i];
-    }
-    return s;
+	caseRobot = msg->data;
 }
 
-void delayms(int millisec){
-	clock_t start_time = clock();
-	while (clock()  < millisec + start_time);
+void bacaL1(const std_msgs::Bool::ConstPtr& msg)
+{
+	l1 = msg->data;
+	if(l1 == true) lantai++;
+	if(lantai > 10) lantai = 0;
 }
+
+void bacaO(const std_msgs::Bool::ConstPtr& msg)
+{
+	if(msg->data == true) indexTiang++;
+}
+
+void bacaTr(const std_msgs::Bool::ConstPtr& msg)
+{
+	if(msg->data == true) indexTiang--;
+}
+
+// void delayms(int millisec){
+// 	clock_t start_time = clock();
+// 	while (clock()  < millisec + start_time);
+// }
 
 float toRad(float degree) {
   return degree * M_PI / 180;
@@ -175,12 +172,13 @@ float toRad(float degree) {
 
 void smoothing() {
   //smoothing
-  XSmoothed = (setX * 0.000007) + (XPrev * 0.999993);
+  XSmoothed = (setX * 0.0009) + (XPrev * 0.9991);
   XPrev = XSmoothed;
-  YSmoothed = (setY * 0.000007) + (YPrev * 0.999993);
+  YSmoothed = (setY * 0.0009) + (YPrev * 0.9991);
   YPrev = YSmoothed;
-  TSmoothed = (setT * 0.000007) + (TPrev * 0.999993);
+  TSmoothed = (setT * 0.0009) + (TPrev * 0.9991);
   TPrev = TSmoothed;
+//   std::cout << YSmoothed << std::endl;
 }
 
 void kinematic(float vX, float vY, float theta, float heading) {
@@ -188,14 +186,31 @@ void kinematic(float vX, float vY, float theta, float heading) {
 	float setradPS2 = (-sin(toRad(POSM2 + heading)) * vX + cos(toRad(POSM2 + heading)) * vY + theta * RADIUSMTR) / RADIUSBAN;
 	float setradPS3 = (-sin(toRad(POSM3 + heading)) * vX + cos(toRad(POSM3 + heading)) * vY + theta * RADIUSMTR) / RADIUSBAN;
 	float setradPS4 = (-sin(toRad(POSM4 + heading)) * vX + cos(toRad(POSM4 + heading)) * vY + theta * RADIUSMTR) / RADIUSBAN;
-
-	roda1.send(sockfd, std::to_string(roda1.PID(1,1,setradPS1,PPR)));
-	roda2.send(sockfd, std::to_string(roda1.PID(1,1,setradPS2,PPR)));
-	roda3.send(sockfd, std::to_string(roda1.PID(1,1,setradPS3,PPR)));
-	roda4.send(sockfd, std::to_string(roda1.PID(1,1,setradPS4,PPR)));  
+	// std::cout << setradPS1 << std::endl;
+	roda1.send(sockfd, std::to_string(roda1.PID(5,0.2,setradPS1,PPR)));
+	roda2.send(sockfd, std::to_string(roda2.PID(5,0.2,setradPS2,PPR)));
+	roda3.send(sockfd, std::to_string(roda3.PID(5,0.2,setradPS3,PPR)));
+	roda4.send(sockfd, std::to_string(roda4.PID(5,0.2,setradPS4,PPR)));  
+}
+void rodamati(){
+	roda1.send(sockfd,"0");
+	roda2.send(sockfd,"0");
+	roda3.send(sockfd,"0");
+	roda4.send(sockfd,"0");
+	roda1.sum = 0;
+	roda2.sum = 0;
+	roda3.sum = 0;
+	roda4.sum = 0;
+	
 }
 
 void calculatePos() {
+	MEGA.receive(sockfd);
+	roda1.receive(sockfd);
+	roda2.receive(sockfd);
+	roda3.receive(sockfd);
+	roda4.receive(sockfd);
+
 	//displacement
 	float v1 = (roda1.enc - roda1.prevenc) * KBAN / (PPR);
 	float v2 = (roda2.enc - roda2.prevenc) * KBAN / (PPR);
@@ -207,38 +222,34 @@ void calculatePos() {
 	roda3.prevenc = roda3.enc;
 	roda4.prevenc = roda4.enc;
 
-	float Vx = -sin(toRad(MEGA.enc + POSM1)) * v1 + -sin(toRad(MEGA.enc + POSM2)) * v2 + -sin(toRad(MEGA.enc + POSM3)) * v3 + -sin(toRad(MEGA.enc + POSM4)) * v4;
-	float Vy = cos(toRad(MEGA.enc + POSM1)) * v1 + cos(toRad(MEGA.enc + POSM2)) * v2 + cos(toRad(MEGA.enc + POSM3)) * v3 + cos(toRad(MEGA.enc + POSM4)) * v4;
+	float Vx = -sin(toRad(MEGA.hadap + POSM1)) * v1 + -sin(toRad(MEGA.hadap + POSM2)) * v2 + -sin(toRad(MEGA.hadap + POSM3)) * v3 + -sin(toRad(MEGA.hadap + POSM4)) * v4;
+	float Vy = cos(toRad(MEGA.hadap + POSM1)) * v1 + cos(toRad(MEGA.hadap + POSM2)) * v2 + cos(toRad(MEGA.hadap + POSM3)) * v3 + cos(toRad(MEGA.hadap + POSM4)) * v4;
 
 	x += Vx;
 	y += Vy;
+	// std::cout << x << "\t" << y << std::endl;
 }
 
 void setPos(float POSX, float POSY, float HADAP) {
 	mulai = std::chrono::steady_clock::now();
-	float nanosec = std::chrono::duration_cast<std::chrono::nanoseconds> (akhir - mulai).count();
-	float deltaT = nanosec * pow(10,9);
-	setX = POSX;
-	setY = POSY;
-	setT = HADAP;
+	int nanosec = std::chrono::duration_cast<std::chrono::nanoseconds> (mulai - akhir).count();
+	double deltaT = nanosec * pow(10,-9);
 	calculatePos();
-	MEGA.receive(sockfd);
-	smoothing();
 	//PID Posisi
-	float errX = XSmoothed - x;
+	float errX = POSX - x;
 	sumX += errX;
 	float PIDx = KPx * errX + KIx * sumX * deltaT;
 	//  PIDx = fmaxf(-7.3, fminf(PIDx,7.3));
 
-	float errY = YSmoothed - y;
+	float errY = POSY - y;
 	sumY += errY;
 	float PIDy = KPy * errY + KIy * sumY * deltaT;
 	//  PIDy = fmaxf(-7.3, fminf(PIDy, 7.3));
 
 
-	float errT = TSmoothed - MEGA.enc;
+	float errT = HADAP - MEGA.hadap;
 	if(errT > 180 || errT < -180){
-	errT = MEGA.enc - TSmoothed;
+	errT = MEGA.hadap - HADAP;
 	}
 	sumT += errT;
 	float PIDt = KPt * errT + KIt * sumT * deltaT;
@@ -255,15 +266,52 @@ float tiangtoRPM(uint8_t tiang){
 	else return 0;
 }
 
+void terimaUDP(int soket){
+	char buffer[MAXLINE];
+	sockaddr_in sender;
+	memset(&sender, 0, sizeof(sender));
+	socklen_t sender_len = sizeof(sender);
+	int sizeReceive = recvfrom(soket, (char *)buffer, MAXLINE,
+						0, ( struct sockaddr *) &sender,
+						&sender_len);
+	buffer[sizeReceive] = '\0';
+	std::string senderIP = inet_ntoa(sender.sin_addr);
+	// std::cout << buffer << std::endl;
+	if(senderIP == roda1.deviceIP){
+		// roda1.enc = atoi(buffer);
+		strncpy(roda1.terima, buffer, MAXLINE);
+		roda1.enc = atoi(roda1.terima);
+	}
+	if(senderIP == roda2.deviceIP){
+		strncpy(roda2.terima, buffer, MAXLINE);
+		roda2.enc = atoi(roda2.terima);
+	}
+	if(senderIP == roda3.deviceIP){
+		strncpy(roda3.terima, buffer, MAXLINE);
+		roda3.enc = atoi(roda3.terima);
+	}
+	if(senderIP == roda4.deviceIP){
+		strncpy(roda4.terima, buffer, MAXLINE);
+		roda4.enc = atoi(roda4.terima);
+	}
+	if(senderIP == MEGA.deviceIP){
+		strncpy(MEGA.terima, buffer, MAXLINE);
+		MEGA.hadap = atof(strtok(MEGA.terima+11, "~"));
+	}
+}
+int lantaitoStep(int tingkat){
+	return tingkat * -1800;
+}
+
 // Driver code
 int main(int argc, char **argv) {
-	// ros::init(argc, argv, "elephantRobot", ros::InitOption::NoSigintHandler);
-	// ros::NodeHandle n;
-	// ros::Subscriber subCase = n.subscribe("/case", 1000, caseCB);
+	ros::init(argc, argv, "elephantRobot", ros::InitOption::NoSigintHandler);
+	ros::NodeHandle n;
+	ros::Subscriber subCase = n.subscribe("/case", 1000, caseCB);
+	ros::Subscriber subLsat = n.subscribe("/lsatu", 1000, bacaL1);
 	// ros::Subscriber subBulet = n.subscribe("/bulet", 1000, bacaO);
 	// ros::Subscriber subTr = n.subscribe("/lupis", 1000, bacaTr);
 
-	
 	struct sockaddr_in servaddr;
 	
 	// Creating socket file descriptor
@@ -273,17 +321,8 @@ int main(int argc, char **argv) {
 	}
 	
 	memset(&servaddr, 0, sizeof(servaddr));
-	// extern Device roda1;
-	// extern Device roda2;
-	// extern Device roda3;
-	// extern Device roda4;
 
-	// Device roda1("192.168.0.11", 5555);
-	// Device roda2("192.168.0.12", 5555);
-	Device roda3("192.168.0.13", 5555);
-	// Device roda4("192.168.0.14", 5555);
-	// Device falcon("192.168.0.15", 5555);
-	// Device MEGA("192.168.0.99", 8888);
+
 	// Filling server information
 	servaddr.sin_family = AF_INET; // IPv4
 	// inet_pton(AF_INET,"192.168.0.55",&servaddr.sin_addr);
@@ -297,163 +336,78 @@ int main(int argc, char **argv) {
 		perror("bind failed");
 		exit(EXIT_FAILURE);
 	}
-	while (1){
-		// MEGA.receive(sockfd);
-		// roda1.receive(sockfd);
-		// roda2.receive(sockfd);
-		roda3.receive(sockfd);
-		// usleep(16000);
-		// roda4.receive(sockfd);
-		// roda3.send(sockfd,"-250");
-		// roda3.send(sockfd, std::to_string(123));
-		// std::cout << roda1.enc << "\t" <<roda2.enc << "\t" <<roda3.enc << "\t" <<roda4.enc << std::endl;
-		std::cout << roda3.terima << std::endl;
-	}
-	//s ros::spin();
-	// while(1) 
-	// {
-	// 	if (caseRobot == 1){
-	// 		if (y > -9.2) {
-	// 			setPos(0, -10.0, 0);
-	// 		}
-	// 		if (y < -9.2) {
-	// 			roda1.sum = 0;
-	// 			roda2.sum = 0;
-	// 			roda3.sum = 0;
-	// 			roda4.sum = 0;
-	// 			kinematic(0,0,0,0);
-	// 			delayms(1000);
-
-	// 			//nyender fence belakang
-	// 			while (!(MEGA.limitSwitch[0] == 0 && MEGA.limitSwitch[1] == 0)) {
-	// 				calculatePos();
-	// 				kinematic(2.5, 0, 0, 0);
-	// 				MEGA.receive(sockfd);
-	// 				x_temp = x;
-	// 			}
-	// 			kinematic(0, 0, 0, 0);
-	// 			delayms(1500);
+	
+	while(1) 
+	{
+		ros::spinOnce();
+		if (caseRobot == 1){
+			if (y > -8.7) {
+				setPos(0.1, -10.5, 0);
+			}
+			if (y < -8.7) {
+				rodamati();
+				//nyender fence belakang
+				while (!(MEGA.terima[0] == '0' && MEGA.terima[1] == '0')) {
+					calculatePos();
+					kinematic(1.5, 0, 0, MEGA.hadap);
+					MEGA.receive(sockfd);
+				}
 				
-	// 			//nyender fence samping
-	// 			while (!(MEGA.limitSwitch[2] == 0 && MEGA.limitSwitch[5] == 0)) {
-	// 				calculatePos();
-	// 				MEGA.receive(sockfd);
-	// 				kinematic(0, -3, 0, 0);
-	// 			}
-	// 			roda1.sum = 0;
-	// 			roda2.sum = 0;
-	// 			roda3.sum = 0;
-	// 			roda4.sum = 0;
-	// 			XSmoothed = x;
-	// 			YSmoothed = y;
-	// 			XPrev = x;
-	// 			YPrev = y;
-	// 			x_temp = x;
-	// 			y_temp = y;
-	// 			while (caseRobot == 1) {
-	// 				calculatePos();
-	// 				kinematic(0, 0, 0, 0);
-	// 			}
-	// 		}
-	// 	}
+				//nyender fence samping
+				while (!(MEGA.terima[2] == '0' && MEGA.terima[5] == '0')) {
+					calculatePos();
+					MEGA.receive(sockfd);
+					kinematic(0, -1.5, 0, 0);
+				}
+				x_temp = x;
+				y_temp = y;
+				// while(caseRobot == 1){
 
-	// 	if(caseRobot == 2){
-	// 		if(x > x_temp - 3){
-	// 			setPos(x_temp - 3, y_temp + 3, 45);
-	// 		}
-	// 		else {
-      
-	// 			clock_t start_time = clock();
-	// 			while (clock()  < 1500 + start_time)
-	// 			{
-	// 				MEGA.receive(sockfd);
-	// 				calculatePos();
-	// 				kinematic(0,0,(45 - MEGA.enc) * 0.6 , 0);
-	// 			}
-				
+				// 	ros::spinOnce();
+				// 	calculatePos();
+				// 	rodamati();
+				// }
+				rodamati();
+				caseRobot = 2;
+			}
+		}
+		if(caseRobot == 2){
+			clock_t start_time = clock();
+			do{
 
-	// 			while(!(MEGA.limitSwitch[6] == 0 && MEGA.limitSwitch[7] == 0)){
-	// 				MEGA.receive(sockfd);
-	// 				calculatePos();
-	// 				if(MEGA.limitSwitch[6] == 0 && MEGA.limitSwitch[7] == 1){
-	// 					kinematic(0,0,2.5,0);
-	// 					roda1.sum = 0;
-	// 					roda2.sum = 0;
-	// 					roda3.sum = 0;
-	// 					roda4.sum = 0;
-	// 					sumX = 0;
-	// 					sumY = 0;
-	// 					sumT = 0;
-	// 				}
-	// 				else if(MEGA.limitSwitch[7] == 0 && MEGA.limitSwitch[6] == 1){
-	// 					kinematic(0,0,-2.5,0);
-	// 					roda1.sum = 0;
-	// 					roda2.sum = 0;
-	// 					roda3.sum = 0;
-	// 					roda4.sum = 0;
-	// 					sumX = 0;
-	// 					sumY = 0;
-	// 					sumT = 0;
-	// 				}
-	// 				else if(MEGA.limitSwitch[6] == 1 && MEGA.limitSwitch[7] == 1){
-	// 					kinematic(0,2,0,0);
-
-	// 				}
-	// 				}
-	// 			}
-	// 			kinematic(0,0,0,0);
-	// 			lantai = 0;
-	// 			while(caseRobot == 2){
-	// 				calculatePos();
-	// 				if (l1 == true) MEGA.send(sockfd, std::to_string(lantai));
-	// 				falcon.send(sockfd, std::to_string(tiangtoRPM(indexTiang)));
-	// 			}
-	// 	}
-
-  	// 	//ambil ring kanan
-	// 	if (caseRobot == 8) {
-	// 		if (y < 11) {
-	// 			setPos(0, 11.8, 178.9);
-	// 		}
-	// 		if (y > 11 ) {
-	// 			roda1.sum = 0;
-	// 			roda2.sum = 0;
-	// 			roda3.sum = 0;
-	// 			roda4.sum = 0;
-	// 			kinematic(0,0,0,0);
-	// 			delayms(1000);
-
-	// 			//nyender fence belakang
-	// 			while (!(MEGA.limitSwitch[3] == 0 && MEGA.limitSwitch[4] == 0)) {
-	// 				calculatePos();
-	// 				MEGA.receive(sockfd);
-	// 				kinematic(-2.5, 0, 0, 0);
-	// 				x_temp = x;
-	// 			}
-	// 			kinematic(0, 0, 0, 0);
-	// 			delayms(1500);
-
-	// 			//nyender fence samping
-	// 			while (!(MEGA.limitSwitch[5] == 0 && MEGA.limitSwitch[2] == 0)) {
-	// 				calculatePos();
-	// 				MEGA.receive(sockfd);
-	// 				kinematic(0, -3, 0, 0);
-	// 			}
-	// 			roda1.sum = 0;
-	// 			roda2.sum = 0;
-	// 			roda3.sum = 0;
-	// 			roda4.sum = 0;
-	// 			XSmoothed = x;
-	// 			YSmoothed = y;
-	// 			XPrev = x;
-	// 			YPrev = y;
-	// 			while (caseRobot == 8) {
-	// 				kinematic(0, 0, 0, 0);
-	// 			}
-	// 		}
-
-
-	// 	}
-	// }	
+				setPos(x_temp - 2, y_temp + 2, 45);
+			}
+			while (!(clock() - start_time > 200000));
+			
+			while(!(MEGA.terima[6] == '0' && MEGA.terima[7] == '0')){
+				// std::cout << "kedepan" << std::endl;
+				MEGA.receive(sockfd);
+				calculatePos();
+				if(MEGA.terima[6] == '0' && MEGA.terima[7] == '1'){
+					kinematic(0,0,-1.5,0);
+				}
+				else if(MEGA.terima[7] == '0' && MEGA.terima[6] == '1'){
+					kinematic(0,0,1.5,0);
+				}
+				else if(MEGA.terima[6] == '1' && MEGA.terima[7] == '1'){
+					kinematic(0,1.5,0,0);
+				}
+			}
+			MEGA.send(sockfd,"#");
+			while (caseRobot == 2){
+				rodamati();
+				lantai = 0;
+				ros::spinOnce();
+				calculatePos();
+				if (l1 == true) MEGA.send(sockfd, std::to_string(lantaitoStep(lantai)));
+				falcon.send(sockfd, std::to_string(tiangtoRPM(indexTiang)));
+			}
+		}
+  		
+		//ambil ring kanan
+		if (caseRobot == 8) {
+			setPos(0,0,0);
+		}
+	}	
 	return 0;
 }
