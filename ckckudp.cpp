@@ -16,7 +16,7 @@
 
 #include "ros/ros.h"
 #include "std_msgs/UInt8.h"
-#include "std_msgs/Bool.h"
+#include "std_msgs/Float32.h"
 
 #define PORT	 8080
 #define MAXLINE 1024
@@ -117,7 +117,7 @@ class Device{
 float XSmoothed, YSmoothed, TSmoothed;
 float XPrev, YPrev, TPrev;
 float setX, setY, setT;
-float x,y;
+float x,y,lx,ly,LL,RR;
 float x_temp, y_temp;
 float setradPS1, setradPS2, setradPS3, setradPS4;
 float sumX, sumY, sumT;
@@ -126,11 +126,14 @@ bool l1;
 int8_t lantai;
 uint8_t indexTiang;
 
+bool mode; //false semi auto, true manual stik
+
 std::chrono::steady_clock::time_point mulai;
 std::chrono::steady_clock::time_point akhir;
 
 int sockfd;
 int caseRobot, prevCase;
+uint8_t tombol, prevTombol;
 
 Device roda1("192.168.0.11", 5555);
 Device roda2("192.168.0.12", 5555);
@@ -139,26 +142,39 @@ Device roda4("192.168.0.14", 5555);
 Device falcon("192.168.0.15", 5555);
 Device MEGA("192.168.0.99", 8888);
 
-void caseCB(const std_msgs::UInt8::ConstPtr& msg)
-{
-	caseRobot = msg->data;
+
+
+void readButton(const std_msgs::UInt8::ConstPtr& msg){
+	tombol = msg->data;
+	if(tombol == 1) caseRobot = 1;
+	if(tombol == 2){ 
+		caseRobot = 2;
+		MEGA.send(sockfd,"#");
+	}
+	tombol == 6 ? l1 = true: l1 = false;
+	if(tombol != prevTombol){
+		if(tombol == 3) indexTiang++;
+		if(tombol == 4) indexTiang--;
+		if(tombol == 6) lantai++;
+	
+	}
+	if(tombol == 9) mode = false;
+	if(tombol == 10) mode = true;
+	
+	prevTombol = tombol;
 }
 
-void bacaL1(const std_msgs::Bool::ConstPtr& msg)
-{
-	l1 = msg->data;
-	if(l1 == true) lantai++;
-	if(lantai > 10) lantai = 0;
+void readLX(const std_msgs::Float32::ConstPtr& msg){
+	lx = msg->data;
 }
-
-void bacaO(const std_msgs::Bool::ConstPtr& msg)
-{
-	if(msg->data == true) indexTiang++;
+void readLY(const std_msgs::Float32::ConstPtr& msg){
+	ly = msg->data;
 }
-
-void bacaTr(const std_msgs::Bool::ConstPtr& msg)
-{
-	if(msg->data == true) indexTiang--;
+void readLL(const std_msgs::Float32::ConstPtr& msg){
+	LL = msg->data;
+}
+void readRR(const std_msgs::Float32::ConstPtr& msg){
+	RR = msg->data;
 }
 
 // void delayms(int millisec){
@@ -307,8 +323,13 @@ int lantaitoStep(int tingkat){
 int main(int argc, char **argv) {
 	ros::init(argc, argv, "elephantRobot", ros::InitOption::NoSigintHandler);
 	ros::NodeHandle n;
-	ros::Subscriber subCase = n.subscribe("/case", 1000, caseCB);
-	ros::Subscriber subLsat = n.subscribe("/lsatu", 1000, bacaL1);
+	ros::Subscriber subButton = n.subscribe("/button", 1000, readButton);
+	ros::Subscriber subLX = n.subscribe("/leftX", 1000, readLX);
+	ros::Subscriber subLY = n.subscribe("/leftY", 1000, readLY);
+	ros::Subscriber subLL = n.subscribe("/LL", 1000, readLL);
+	ros::Subscriber subRR = n.subscribe("/RR", 1000, readRR);
+	// ros::Subscriber subCase = n.subscribe("/case", 1000, caseCB);
+	// ros::Subscriber subLsat = n.subscribe("/lsatu", 1000, bacaL1);
 	// ros::Subscriber subBulet = n.subscribe("/bulet", 1000, bacaO);
 	// ros::Subscriber subTr = n.subscribe("/lupis", 1000, bacaTr);
 
@@ -340,73 +361,78 @@ int main(int argc, char **argv) {
 	while(1) 
 	{
 		ros::spinOnce();
-		if (caseRobot == 1){
-			if (y > -8.7) {
-				setPos(0.1, -10.5, 0);
-			}
-			if (y < -8.7) {
-				rodamati();
-				//nyender fence belakang
-				while (!(MEGA.terima[0] == '0' && MEGA.terima[1] == '0')) {
-					calculatePos();
-					kinematic(1.5, 0, 0, MEGA.hadap);
-					MEGA.receive(sockfd);
+		if(mode == false){
+			if (caseRobot == 1){
+				if (y > -8.7) {
+					setPos(0.1, -10.5, 0);
 				}
+				if (y < -8.7) {
+					rodamati();
+					//nyender fence belakang
+					while (!(MEGA.terima[0] == '0' && MEGA.terima[1] == '0')) {
+						calculatePos();
+						kinematic(1.5, 0, 0, MEGA.hadap);
+						MEGA.receive(sockfd);
+					}
+					
+					//nyender fence samping
+					while (!(MEGA.terima[2] == '0' && MEGA.terima[5] == '0')) {
+						calculatePos();
+						MEGA.receive(sockfd);
+						kinematic(0, -1.5, 0, 0);
+					}
+					x_temp = x;
+					y_temp = y;
+					// while(caseRobot == 1){
+
+					// 	ros::spinOnce();
+					// 	calculatePos();
+					// 	rodamati();
+					// }
+					rodamati();
+					caseRobot = 2;
+				}
+			}
+			if(caseRobot == 2){
+				clock_t start_time = clock();
+				do{
+
+					setPos(x_temp - 2, y_temp + 2, 45);
+				}
+				while (!(clock() - start_time > 200000));
 				
-				//nyender fence samping
-				while (!(MEGA.terima[2] == '0' && MEGA.terima[5] == '0')) {
-					calculatePos();
+				while(!(MEGA.terima[6] == '0' && MEGA.terima[7] == '0')){
+					// std::cout << "kedepan" << std::endl;
 					MEGA.receive(sockfd);
-					kinematic(0, -1.5, 0, 0);
+					calculatePos();
+					if(MEGA.terima[6] == '0' && MEGA.terima[7] == '1'){
+						kinematic(0,0,-1.5,0);
+					}
+					else if(MEGA.terima[7] == '0' && MEGA.terima[6] == '1'){
+						kinematic(0,0,1.5,0);
+					}
+					else if(MEGA.terima[6] == '1' && MEGA.terima[7] == '1'){
+						kinematic(0,1.5,0,0);
+					}
 				}
-				x_temp = x;
-				y_temp = y;
-				// while(caseRobot == 1){
-
-				// 	ros::spinOnce();
-				// 	calculatePos();
-				// 	rodamati();
-				// }
-				rodamati();
-				caseRobot = 2;
+				while (caseRobot == 2){
+					rodamati();
+					lantai = 0;
+					ros::spinOnce();
+					calculatePos();
+					if (tombol == 6) MEGA.send(sockfd, std::to_string(lantaitoStep(lantai)));
+					falcon.send(sockfd, std::to_string(tiangtoRPM(indexTiang)));
+				}
 			}
-		}
-		if(caseRobot == 2){
-			clock_t start_time = clock();
-			do{
-
-				setPos(x_temp - 2, y_temp + 2, 45);
-			}
-			while (!(clock() - start_time > 200000));
 			
-			while(!(MEGA.terima[6] == '0' && MEGA.terima[7] == '0')){
-				// std::cout << "kedepan" << std::endl;
-				MEGA.receive(sockfd);
-				calculatePos();
-				if(MEGA.terima[6] == '0' && MEGA.terima[7] == '1'){
-					kinematic(0,0,-1.5,0);
-				}
-				else if(MEGA.terima[7] == '0' && MEGA.terima[6] == '1'){
-					kinematic(0,0,1.5,0);
-				}
-				else if(MEGA.terima[6] == '1' && MEGA.terima[7] == '1'){
-					kinematic(0,1.5,0,0);
-				}
-			}
-			MEGA.send(sockfd,"#");
-			while (caseRobot == 2){
-				rodamati();
-				lantai = 0;
-				ros::spinOnce();
-				calculatePos();
-				if (l1 == true) MEGA.send(sockfd, std::to_string(lantaitoStep(lantai)));
-				falcon.send(sockfd, std::to_string(tiangtoRPM(indexTiang)));
+			//ambil ring kanan
+			if (caseRobot == 8) {
+				setPos(0,0,0);
 			}
 		}
-  		
-		//ambil ring kanan
-		if (caseRobot == 8) {
-			setPos(0,0,0);
+		if(mode == true){
+			calculatePos();
+			kinematic(lx,ly,LL-RR,0);
 		}
 	}	
 	return 0;

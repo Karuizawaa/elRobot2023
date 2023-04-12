@@ -1,0 +1,12 @@
+<launch>
+	
+  	<!-- connect -->
+  	<node name="autoconnect" pkg="dualshock4" type="autoConnect.sh" output="screen" />
+
+	<!-- PS4 ROS NODE -->
+	<node pkg="dualshock4" type="ds4" name="ds4_ros" output="screen">
+	</node>
+
+</launch>
+
+
