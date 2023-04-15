@@ -17,6 +17,9 @@
 #define CW   7
 #define CCW  8
 
+#define KP 0.7
+#define KI 0
+
 // replace the MAC address below by the MAC address printed on a sticker on the Arduino Shield 2
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
@@ -30,12 +33,14 @@ EthernetUDP Udp;
 unsigned int localPort = 5555;
 char packetBuffer[512];  // buffer to hold incoming packet,
 
-long int encoder;
+long int encoder, lastEncoder;
 String kirim;
 unsigned long previousMillis = 0;
-int pwm;
+float setVel;
 
-unsigned long tunggu;
+unsigned long int prevT;
+volatile float vFilt, vPrev, sum;
+
 // TODO: Declare something depending on your application
 
 void setup() {
@@ -56,16 +61,19 @@ void setup() {
 
 void loop(){
 //  Serial.println(encoder);
-  Udp.beginPacket(IPAddress(192,168,0,55),5555);
-  Udp.print(encoder);
-  Udp.endPacket();
-
-  if(int n = Udp.parsePacket()){
-      Udp.read(packetBuffer,5);  // buffer to hold incoming packet,
-      packetBuffer[n] = '\0';
-      pwm = atoi(packetBuffer);
-//      Serial.println(packetBuffer);
-  }
-  Udp.flush();
-  motor(pwm);
+//  Udp.beginPacket(IPAddress(192,168,0,55),5555);
+//  Udp.print(encoder);
+//  Udp.endPacket();
+//
+//  if(int n = Udp.parsePacket()){
+//      Udp.read(packetBuffer,5);  // buffer to hold incoming packet,
+//      packetBuffer[n] = '\0';
+//      setVel = atof(packetBuffer);
+////      Serial.println(packetBuffer);
+//  }
+//  Udp.flush();
+//  motor(pwm);
+  setVel = 2 *M_PI* 1;
+  closedloopctl(setVel);
+//  motor(50);
 }

@@ -1,10 +1,10 @@
 /*
-   Created by ArduinoGetStarted.com
-
-   This example code is in the public domain
-
-   Tutorial page: https://arduinogetstarted.com/tutorials/arduino-ethernet-shield-2
-*/
+ * Created by ArduinoGetStarted.com
+ *
+ * This example code is in the public domain
+ *
+ * Tutorial page: https://arduinogetstarted.com/tutorials/arduino-ethernet-shield-2
+ */
 
 #include <SPI.h>
 #include <Ethernet.h>
@@ -39,25 +39,25 @@ Servo B3;
 #define LIM8 45
 
 //LIMIT atas
-#define LIM9 47
-#define LIM10 49
+#define LIM9 47  //mentok belakang
+#define LIM10 49 //mentok depan
 
 //Sensor optic
-#define OPTIC 48
+#define OPTIC 22
 
 //motor stepper
-#define PUL 33
-#define DIR 35
+#define PUL 13
+#define DIR 12
 
 //MOTOR1
-#define pwmM1 4
-#define cwM1  29
-#define ccwM1 27
+#define pwmM1 3
+#define cwM1  25
+#define ccwM1 23
 
 //MOTOR 2
 #define pwmM2 4
-#define cwM2  25
-#define ccwM2 23
+#define cwM2  27
+#define ccwM2 29
 
 //MOTOR 3
 #define pwmM3 6
@@ -65,9 +65,9 @@ Servo B3;
 #define ccwM3 24
 
 //MOTOR 4
-#define pwmM4 7
-#define cwM4  26
-#define ccwM4 28
+#define pwmM4 9
+#define cwM4  8
+#define ccwM4 11
 #define PWMMAX 200
 
 
@@ -88,22 +88,11 @@ EthernetUDP Udp;
 unsigned int localPort = 8888;
 char packetBuffer[512];  // buffer to hold incoming packet,
 
-long encoder;
-<<<<<<< HEAD
 char headStr[20];
-=======
-char headStr[128];
->>>>>>> 3621df9337afc1cc9d3f704fe04d656dd486f114
-unsigned long previousMillis = 0;
-int pwm;
-unsigned long int encFalcon, lastFalcon;
+int lantai = -1;
+int prevLantai = -1;
 
-volatile float prevT;
-
-int sekarang; // posisi step sekarang
-
-#define KPf 1
-#define KIf 1
+int sekarang;
 
 // TODO: Declare something depending on your application
 
@@ -115,11 +104,13 @@ struct gy25 {
 } cmps;
 
 
+long long int variable;
+
 void setup() {
-  Serial.begin(115200);
-
-  B3.attach(pwmM2);
-
+//  Serial.begin(115200);
+  B3.attach(7);
+  pinMode(PUL, OUTPUT);
+  pinMode(DIR, OUTPUT);
   pinMode(LIM1, INPUT_PULLUP);
   pinMode(LIM2, INPUT_PULLUP);
   pinMode(LIM3, INPUT_PULLUP);
@@ -130,68 +121,72 @@ void setup() {
   pinMode(LIM8, INPUT_PULLUP);
   pinMode(LIM9, INPUT_PULLUP);
   pinMode(LIM10, INPUT_PULLUP);
+  pinMode(OPTIC, INPUT);
 
+  pinMode(pwmM2, OUTPUT);
+  pinMode(cwM2, OUTPUT);
+  pinMode(ccwM2, OUTPUT);
+  
   // initialize the Ethernet shield using the static IP address:
   Ethernet.begin(mac, ip, myDns, gateway, subnet);
 
   // initialize Udp communication on port
   Udp.begin(localPort);
   kalibrasiIMU();
-
+  kalibrasiStepper();
+  
+  
 }
 
-
-<<<<<<< HEAD
+char masok;
 void loop(){
-//  Udp.beginPacket(IPAddress(192,168,0,55),5555);
-//  if(int n = Udp.parsePacket()){
-//    Udp.read(packetBuffer,6);  // buffer to hold incoming packet,
-//    packetBuffer[n] = '\0';
-//    pwm = atoi(packetBuffer); //write microseconds
-//    Udp.flush();
-//  }
-  unsigned long currentMillis = millis();
-//  if (currentMillis - previousMillis >= 1) {
-//      
-//      previousMillis = currentMillis;
-//      Udp.beginPacket(IPAddress(192,168,0,55),5555);
-//      sprintf(headStr, "%d%d%d%d%d%d%d%d%d%d=%d#", digitalRead(LIM1), digitalRead(LIM2), digitalRead(LIM3),
-//        digitalRead(LIM4), digitalRead(LIM5), digitalRead(LIM6), digitalRead(LIM7), digitalRead(LIM8),
-//        digitalRead(LIM9), digitalRead(LIM10)), cmps.headInt;
-//      Udp.write(headStr);
-//      Udp.endPacket();
-//      
-//      
-//      
-//  }
-  updateCMPS();
-  falcon.writeMicroseconds(pwm);
-=======
-void loop() {
-  if (int n = Udp.parsePacket()) {
-    Udp.read(packetBuffer, 3); // buffer to hold incoming packet,
+  if(int n = Udp.parsePacket()){
+    Udp.read(packetBuffer,6);  // buffer to hold incoming packet,
     packetBuffer[n] = '\0';
-    pwm = atoi(packetBuffer); //write microseconds
-    toStep(lantaitoStep(pwm),200);
+    if(packetBuffer[0] == '-') lantai = atoi(packetBuffer); //write microseconds
+    Serial.print("UDP packet : ");
+    Serial.println(lantai);
+    
+    
+  }
+  Udp.flush();
+  if(packetBuffer[0] == '1'){
+    //servo naik
     servo(90);
-    while(digitalRead(LIM10) == 1){
-      //motor maju kebelakang
+    //kebelakang
+    while(digitalRead(LIM9) != LOW){
+//      Serial.print("lim belakangg " ); Serial.println(digitalRead(LIM9));
+      motor2(-200);
     }
+    motor2(0);
+    //servo turun
     servo(0);
-    while(digitalRead(LIM9) == 1){
-      //motor maju kedepan
+  }
+  updateCMPS();
+//  Serial.println(digitalRead(OPTIC));
+  if(lantai != prevLantai || masok == '1'){
+    
+    //kedepan
+    while(digitalRead(LIM10) != LOW){
+//      Serial.print("lim depan " ); Serial.println(digitalRead(LIM10));
+      motor2(200);
     }
-    Udp.flush();
+    motor2(0);
+    //lantai begerak
+    toStep(lantai, 200);
+    
+    
+    //servo naik
+    servo(90);
+    //kebelakang
+    while(digitalRead(LIM9) != LOW){
+//      Serial.print("lim belakangg " ); Serial.println(digitalRead(LIM9));
+      motor2(-200);
+    }
+    motor2(0);
+    //servo turun
+    servo(35);
+    masok = 'a';
+    prevLantai = lantai;
   }
-  unsigned long currentMillis = millis();
-  if (currentMillis - previousMillis >= 1) {
-    updateCMPS();
-    previousMillis = currentMillis;
-    Udp.beginPacket(IPAddress(192, 168, 0, 3), 5555);
-    sprintf(headStr, "%d%d%d%d%d%d%d%d%d%d=%f#", digitalRead(LIM1), digitalRead(LIM2), digitalRead(LIM3),
-            digitalRead(LIM4), digitalRead(LIM5), digitalRead(LIM6), digitalRead(LIM7), digitalRead(LIM8),
-            digitalRead(LIM9), digitalRead(LIM10)), cmps.heading;
-    Udp.endPacket();
-  }
->>>>>>> 3621df9337afc1cc9d3f704fe04d656dd486f114
 }

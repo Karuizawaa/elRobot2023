@@ -1,33 +1,12 @@
-void kalibrasiTransfer(){
-  while(digitalRead(LIM9) == 1){
-    //motor maju sampe kedepan
-    servo(90);
-  }
-}
+//void rpmFalcon(){
+//  // Compute velocity with method 2
+//  long currT = micros();
+//  float deltaT = ((float) (currT - prevT))/1.0e6;
+//  float rpm = 60/deltaT;
+//  prevT = currT;
+//}
 
-void toStep(int langkah, int kecepatan) {
-  while (sekarang != langkah) {
-
-    if (langkah > sekarang) {
-      digitalWrite(DIR, LOW);
-      sekarang++;
-    }
-    else {
-      digitalWrite(DIR, HIGH);
-      sekarang--;
-    }
-    digitalWrite(PUL, HIGH);
-    delayMicroseconds(kecepatan); // ganti delay untuk mempercepat motor
-    digitalWrite(PUL, LOW);
-    delayMicroseconds(kecepatan); // ganti delay untuk mempercepat motor
-  }
-  
-}
-
-int lantaitoStep(int lantai){
-  return(lantai * -100);
-}
-void kalibrasiIMU() {
+void kalibrasiIMU(){
   Serial3.begin(115200);
 
   Serial.println("mulai kalibret");
@@ -50,6 +29,31 @@ void kalibrasiIMU() {
   Serial3.write(0x53);
 
   delay(100); // Jeda sebentar
+  Serial.println("selesai kalbret IMU");
+}
+
+void kalibrasiStepper(){
+  while(digitalRead(LIM10) != LOW){
+    Serial.println("motor mentokin kedepan");
+      motor2(200);
+    }
+    Serial.println("motor sudah mentok kedepan");
+    motor2(0);
+  //servo naik
+  servo(90);
+  while(digitalRead(OPTIC) != HIGH){
+
+    Serial.println("Stepper kebawah");
+    digitalWrite(DIR, LOW);
+    digitalWrite(PUL, HIGH);
+    delayMicroseconds(200); // ganti delay untuk mempercepat motor
+    digitalWrite(PUL, LOW);
+    delayMicroseconds(200); // ganti delay untuk mempercepat motor
+  }
+  sekarang = 1;
+  //kedepan
+  Serial.println("stepper udah kebawah");
+  
 }
 
 void updateCMPS() {
@@ -78,19 +82,33 @@ void updateCMPS() {
   bool sw9 = digitalRead(LIM9);
   bool sw10 = digitalRead(LIM10);
   Udp.beginPacket(IPAddress(192,168,0,55),5555);
-    sprintf(headStr, "%d%d%d%d%d%d%d%d%d%d=%s~", sw1, sw2, sw3, sw4, sw5, sw6, sw7, sw8, sw9, sw10, strtok(cmps.buffer + 5, ","));
-//sprintf(headStr, "%d", cmps.headInt);
-      Udp.write(headStr);
-      Udp.endPacket();
-//  Udp.beginPacket(IPAddress(192,168,0,55),5555);
-//  Udp.write(hadap);
-//  Udp.endPacket();
-  Serial.println(cmps.heading);
+  sprintf(headStr, "%d%d%d%d%d%d%d%d%d%d=%s~", sw1, sw2, sw3, sw4, sw5, sw6, sw7, sw8, sw9, sw10, strtok(cmps.buffer + 5, ","));
+
+  Udp.write(headStr);
+  Udp.endPacket();
 }
 
 void servo(int sudut){
   int writems = (400.0 * (float)sudut / 27.0) + 500.0;
   B3.writeMicroseconds(writems);
+}
+
+void toStep(int langkah, int kecepatan) {
+  while (sekarang != langkah) {
+
+    if (langkah > sekarang) {
+      digitalWrite(DIR, LOW);
+      sekarang++;
+    }
+    else {
+      digitalWrite(DIR, HIGH);
+      sekarang--;
+    }
+    digitalWrite(PUL, HIGH);
+    delayMicroseconds(kecepatan); // ganti delay untuk mempercepat motor
+    digitalWrite(PUL, LOW);
+    delayMicroseconds(kecepatan); // ganti delay untuk mempercepat motor
+  }
 }
 
 void motor1 (int pwm) {
@@ -110,3 +128,43 @@ void motor1 (int pwm) {
     digitalWrite(ccwM1, 0);
   }
 }
+void motor2 (int pwm) {
+  pwm = max(-PWMMAX, min(pwm, PWMMAX));
+  analogWrite(pwmM2, fabs(pwm));
+
+  if (pwm > 0) {
+    digitalWrite(cwM2, 1);
+    digitalWrite(ccwM2, 0);
+  }
+  else if (pwm < 0) {
+    digitalWrite(cwM2, 0);
+    digitalWrite(ccwM2, 1);
+  }
+  else {
+    digitalWrite(cwM2, 0);
+    digitalWrite(ccwM2, 0);
+  }
+}
+
+//volatile float sum;
+//#define PPR 1
+//void PID(){
+//  
+//  volatile unsigned long currT = micros();
+//  float deltaT = ((float) (currT - prevT)) / 1.0e6; //jadi satuan detik
+//  prevT = currT;
+//  
+//  volatile float setRPM;
+//  
+//  volatile float RPM = ((encFalcon - lastFalcon) * 1 / PPR)  * 60 / deltaT;
+//  
+//  volatile float err = setRPM - RPM;
+//  sum += err;
+//  volatile float PIDf = KPf * err + KIf * sum;
+//
+//  if(setRPM == 0){
+//    gasFalcon(1500);
+//    sum = 0;
+//  }
+//  gasFalcon(PIDf);
+//}
