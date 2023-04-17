@@ -12,7 +12,7 @@
 
 #include "Servo.h"
 
-Servo B3;
+Servo B3, falcon;
 #define pinB3 8
 
 //encoder
@@ -93,7 +93,7 @@ int lantai = -1;
 int prevLantai = -1;
 
 int sekarang;
-
+int velocity;
 // TODO: Declare something depending on your application
 
 struct gy25 {
@@ -107,8 +107,9 @@ struct gy25 {
 long long int variable;
 
 void setup() {
-//  Serial.begin(115200);
+  Serial.begin(115200);
   B3.attach(7);
+  falcon.attach(6);
   pinMode(PUL, OUTPUT);
   pinMode(DIR, OUTPUT);
   pinMode(LIM1, INPUT_PULLUP);
@@ -144,15 +145,17 @@ void loop(){
     Udp.read(packetBuffer,6);  // buffer to hold incoming packet,
     packetBuffer[n] = '\0';
     if(packetBuffer[0] == '-') lantai = atoi(packetBuffer); //write microseconds
-    Serial.print("UDP packet : ");
-    Serial.println(lantai);
-    
-    
+    if(packetBuffer[0] == '+') velocity = atoi(packetBuffer);
+//    Serial.print("vel : ");
+//    Serial.println(velocity);
   }
   Udp.flush();
   if(packetBuffer[0] == '1'){
+    toStep(0,200);
+    lantai = 0;
+    prevLantai = 0;
     //servo naik
-    servo(90);
+    servo(70);
     //kebelakang
     while(digitalRead(LIM9) != LOW){
 //      Serial.print("lim belakangg " ); Serial.println(digitalRead(LIM9));
@@ -160,7 +163,7 @@ void loop(){
     }
     motor2(0);
     //servo turun
-    servo(0);
+    servo(-4);
   }
   updateCMPS();
 //  Serial.println(digitalRead(OPTIC));
@@ -172,21 +175,26 @@ void loop(){
       motor2(200);
     }
     motor2(0);
-    //lantai begerak
-    toStep(lantai, 200);
-    
-    
     //servo naik
-    servo(90);
-    //kebelakang
-    while(digitalRead(LIM9) != LOW){
-//      Serial.print("lim belakangg " ); Serial.println(digitalRead(LIM9));
-      motor2(-200);
+    servo(70);
+    //lantai begerak
+    while(digitalRead(LIM9) != 0){
+      toStepBareng(lantai, 200);
     }
+    
+    
+    
+    
+    //kebelakang
+//    while(digitalRead(LIM9) != LOW){
+////      Serial.print("lim belakangg " ); Serial.println(digitalRead(LIM9));
+//      motor2(-200);
+//    }
     motor2(0);
     //servo turun
-    servo(35);
+    servo(-4);
     masok = 'a';
     prevLantai = lantai;
   }
+  gasFalcon(velocity);
 }
