@@ -61,7 +61,7 @@ void loop(){
   Udp.endPacket();
 
   if(int n = Udp.parsePacket()){
-      Udp.read(packetBuffer,5);  // buffer to hold incoming packet,
+      Udp.read(packetBuffer,6);  // buffer to hold incoming packet,
       packetBuffer[n] = '\0';
       pwm = atoi(packetBuffer);
 //      Serial.println(packetBuffer);

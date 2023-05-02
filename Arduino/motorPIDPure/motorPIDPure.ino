@@ -17,8 +17,8 @@
 #define CW   7
 #define CCW  8
 
-#define KP 0.7
-#define KI 0
+#define KP 4.3
+#define KI 2.3
 
 // replace the MAC address below by the MAC address printed on a sticker on the Arduino Shield 2
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
@@ -66,14 +66,12 @@ void loop(){
 //  Udp.endPacket();
 //
 //  if(int n = Udp.parsePacket()){
-//      Udp.read(packetBuffer,5);  // buffer to hold incoming packet,
+//      Udp.read(packetBuffer,512);  // buffer to hold incoming packet,
 //      packetBuffer[n] = '\0';
 //      setVel = atof(packetBuffer);
 ////      Serial.println(packetBuffer);
 //  }
 //  Udp.flush();
-//  motor(pwm);
-  setVel = 2 *M_PI* 1;
-  closedloopctl(setVel);
-//  motor(50);
+//  closedloopctl(-setVel);
+  motor(-150);
 }
