@@ -8,13 +8,17 @@
 
 #include "ros/ros.h"
 #include "std_msgs/Int8.h"
+#include "std_msgs/UInt16.h"
+#include "std_msgs/Float32.h"
 
 
 
-std_msgs::Int8 x, y, tiang, rotate;
+std_msgs::Int8 tiang, rotate;
+std_msgs::Float32 x, y, LL, RR;
+std_msgs::UInt16 keys;
 
-int8_t prevX, prevY, prevTiang, prevRotate;
-
+int8_t prevX, prevY, prevTiang, prevLL, prevRR;
+uint16_t prevKeyy;
 struct termios orig_termios;
 
 void reset_terminal_mode()
@@ -66,10 +70,12 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "kibod");
     ros::NodeHandle n;
 
-    ros::Publisher xPub = n.advertise<std_msgs::Int8>("x", 1000);
-    ros::Publisher yPub = n.advertise<std_msgs::Int8>("y", 1000);
+    ros::Publisher xPub = n.advertise<std_msgs::Float32>("leftX", 1000);
+    ros::Publisher yPub = n.advertise<std_msgs::Float32>("leftY", 1000);
     ros::Publisher tiangPub = n.advertise<std_msgs::Int8>("poles", 1000);
-    ros::Publisher rotatePub = n.advertise<std_msgs::Int8>("rotate", 1000);
+    ros::Publisher LLPUB = n.advertise<std_msgs::Float32>("LL", 1000);
+    ros::Publisher RRPUB = n.advertise<std_msgs::Float32>("RR", 1000);
+    ros::Publisher keyyPub = n.advertise<std_msgs::UInt16>("keyy", 1000);
     ros::Rate loop_rate(33);
 
     while(ros::ok()){
@@ -107,17 +113,20 @@ int main(int argc, char **argv)
                 if(ip == '3') tiang.data = 3;
                 if(ip == '4') tiang.data = 4;
                 if(ip == '0') tiang.data = 0;
-                if(ip == 9) rotate.data = -1;
-                if(ip == 92) rotate.data = 1;
+                if(ip == 9) LL.data = 2;
+                if(ip == 92) RR.data = 2;
                 printf("%d\n", ip);
             }
         }
         if(ip == 0){
+            LL.data = 0;
+            RR.data = 0;
             x.data = 0;
             y.data = 0;
             rotate.data = 0;
             
         }
+        keys.data = ip;
         ros::spinOnce();
         if(prevTiang != tiang.data) tiangPub.publish(tiang);
         prevTiang = tiang.data;
@@ -128,8 +137,14 @@ int main(int argc, char **argv)
         if(prevY != y.data) yPub.publish(y);
         prevY = y.data;
 
-        if(prevRotate != rotate.data) rotatePub.publish(rotate);
-        prevRotate = rotate.data;
+        if(prevLL != LL.data) LLPUB.publish(LL);
+        prevLL = LL.data;
+        
+        if(prevRR != RR.data) RRPUB.publish(RR);
+        prevRR = RR.data;
+
+        if(prevKeyy != keys.data) keyyPub.publish(keys);
+        prevKeyy = keys.data;
 
         loop_rate.sleep();
     }

@@ -1,0 +1,11 @@
+<launch>
+
+	<!-- PS4 ROS NODE -->
+	<node pkg="qwerty" type="kibod" name="kibodrobot" output="screen" respawn="true" />
+
+	<!-- elRobot -->
+	<node pkg="gadjah" type="gadjahUDP" name="elRobot" respawn="true" output="screen" />
+
+</launch>
+
+
