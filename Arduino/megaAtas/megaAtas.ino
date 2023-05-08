@@ -192,7 +192,7 @@ void loop(){
 //    }
     motor2(0);
     //servo turun
-    servo(-4);
+    servo(0);
     masok = 'a';
     prevLantai = lantai;
   }
