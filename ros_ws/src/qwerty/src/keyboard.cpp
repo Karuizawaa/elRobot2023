@@ -78,6 +78,7 @@ int main(int argc, char **argv)
     ros::Publisher keyyPub = n.advertise<std_msgs::UInt16>("keyy", 1000);
     ros::Rate loop_rate(33);
 
+    tiang.data = 1;
     while(ros::ok()){
         uint8_t ip = 0;
         if(kbhit()){
