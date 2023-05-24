@@ -57,10 +57,15 @@ void setup() {
 
 
 void loop() {
+  Udp.beginPacket(IPAddress(192,168,0,55),5555);
+  Udp.print(encoder);
+  Udp.endPacket();
+  
   if(int n = Udp.parsePacket()){
       Udp.read(packetBuffer,512);  // buffer to hold incoming packet,
       packetBuffer[n] = '\0';
-      velocity = atof(packetBuffer); //write microseconds
+      Serial.println(packetBuffer);
+      velocity = atoi(packetBuffer); //write microseconds
   }
   Udp.flush();
   gasFalcon(velocity);

@@ -10,9 +10,13 @@
 #include <Ethernet.h>
 #include <EthernetUdp.h>
 
-#include "Servo.h"
+//#include <Wire.h> 
+//#include <LiquidCrystal_I2C.h>
+
+#include <Servo.h>
 
 Servo B3, falcon;
+//LiquidCrystal_I2C lcd(0x27);
 #define pinB3 8
 
 //encoder
@@ -39,8 +43,8 @@ Servo B3, falcon;
 #define LIM8 45
 
 //LIMIT atas
-#define LIM9 47  //mentok belakang
-#define LIM10 49 //mentok depan
+#define LIM10 47  //mentok depen
+#define LIM9 49 //mentok blakang
 
 //Sensor optic
 #define OPTIC 22
@@ -70,8 +74,13 @@ Servo B3, falcon;
 #define ccwM4 11
 #define PWMMAX 200
 
+#define LEDD1 28
+#define LEDD2 30
+#define LEDD3 32
+#define LEDD4 34
 
-
+#define STEPUP 24
+#define STEPDOWN 26
 
 // IMU 14 dan 15
 
@@ -89,11 +98,12 @@ unsigned int localPort = 8888;
 char packetBuffer[512];  // buffer to hold incoming packet,
 
 char headStr[20];
-int lantai = -1;
-int prevLantai = -1;
+int lantai = 0;
+int prevLantai = 0;
 
 int sekarang;
 int velocity;
+int indexTiang, indexTiangPrev;
 // TODO: Declare something depending on your application
 
 struct gy25 {
@@ -106,9 +116,13 @@ struct gy25 {
 
 long long int variable;
 
+
+
 void setup() {
+//  lcd.begin(20,4);
+//  lcd.clear();
+//  lcd.noCursor();
   Serial.begin(115200);
-  B3.attach(7);
   falcon.attach(6);
   pinMode(PUL, OUTPUT);
   pinMode(DIR, OUTPUT);
@@ -127,6 +141,14 @@ void setup() {
   pinMode(pwmM2, OUTPUT);
   pinMode(cwM2, OUTPUT);
   pinMode(ccwM2, OUTPUT);
+
+  pinMode(LEDD1, OUTPUT);
+  pinMode(LEDD2, OUTPUT);
+  pinMode(LEDD3, OUTPUT);
+  pinMode(LEDD4, OUTPUT);
+
+  pinMode(STEPUP, INPUT_PULLUP);
+  pinMode(STEPDOWN, INPUT_PULLUP);
   
   // initialize the Ethernet shield using the static IP address:
   Ethernet.begin(mac, ip, myDns, gateway, subnet);
@@ -136,65 +158,129 @@ void setup() {
   kalibrasiIMU();
   kalibrasiStepper();
   
-  
+  lantai = -200;
+//  prevLantai = 0;
 }
-
+int melangkah;
 char masok;
 void loop(){
+  if(digitalRead(STEPUP) == 0){
+    digitalWrite(DIR, LOW);
+    digitalWrite(PUL, HIGH);
+    delayMicroseconds(200); // ganti delay untuk mempercepat motor
+    digitalWrite(PUL, LOW);
+    delayMicroseconds(200); // ganti delay untuk mempercepat motor
+  }
+  if(digitalRead(STEPDOWN) == 0){
+    digitalWrite(DIR, HIGH);
+    digitalWrite(PUL, HIGH);
+    delayMicroseconds(200); // ganti delay untuk mempercepat motor
+    digitalWrite(PUL, LOW);
+    delayMicroseconds(200); // ganti delay untuk mempercepat motor
+  }
+  updateCMPS();
+//  digitalWrite(LEDD2, 1);
+//  Serial.print(digitalRead(LIM9)); Serial.print("\t");Serial.println(digitalRead(LIM10));
   if(int n = Udp.parsePacket()){
     Udp.read(packetBuffer,6);  // buffer to hold incoming packet,
     packetBuffer[n] = '\0';
     if(packetBuffer[0] == '-') lantai = atoi(packetBuffer); //write microseconds
     if(packetBuffer[0] == '+') velocity = atoi(packetBuffer);
-//    Serial.print("vel : ");
-//    Serial.println(velocity);
+    if(packetBuffer[0] == ' ') indexTiang = atoi(packetBuffer);
+//    if(packetBuffer[0] == 'B') motor2(255);
+//    if(packetBuffer[0] == 'F') motor2(-255);
+//    if(packetBuffer[0] == 'S') motor2(0);
   }
-  Udp.flush();
+  
+//  Udp.flush();
   if(packetBuffer[0] == '1'){
-    toStep(0,200);
+//    toStep(0,200);  
     lantai = 0;
-    prevLantai = 0;
-    //servo naik
-    servo(70);
+//    prevLantai = 0;
     //kebelakang
     while(digitalRead(LIM9) != LOW){
-//      Serial.print("lim belakangg " ); Serial.println(digitalRead(LIM9));
-      motor2(-200);
+      motor2(255);
+      updateCMPS();
     }
     motor2(0);
-    //servo turun
-    servo(-4);
   }
-  updateCMPS();
-//  Serial.println(digitalRead(OPTIC));
-  if(lantai != prevLantai || masok == '1'){
-    
-    //kedepan
-    while(digitalRead(LIM10) != LOW){
-//      Serial.print("lim depan " ); Serial.println(digitalRead(LIM10));
-      motor2(200);
+  
+  
+  if(lantai != prevLantai){
+    if(lantai < -1001 || lantai == 0){
+      
+      //kedepan
+      toStep(lantai, 200);
+      unsigned long tunggu = millis();
+      while(millis() - tunggu <= 200){
+//        updateCMPS();
+        motor2(-200);
+      }
+      motor2(0);
+      toStep(lantai+800, 200);
+      while(digitalRead(LIM10) != LOW){
+        updateCMPS();
+        motor2(-255);
+      }
+      while(digitalRead(LIM10) != LOW){
+        updateCMPS();
+        motor2(-255);
+        if(int n = Udp.parsePacket()){
+          Udp.read(packetBuffer,6);  // buffer to hold incoming packet,
+          packetBuffer[n] = '\0';
+          if(packetBuffer[0] == 'B') motor2(255);
+          if(packetBuffer[0] == 'F') motor2(-255);
+          if(packetBuffer[0] == 'S') motor2(0);
+        }
+      }
+//      delay(500);
+      //kebelakang
+      while(digitalRead(LIM9) != 0){
+        updateCMPS();
+        motor2(255);
+      }
+      motor2(0);
+//      toStep(lantai, 200);
+      
+      masok = 'a';
+      prevLantai = lantai;
     }
-    motor2(0);
-    //servo naik
-    servo(70);
-    //lantai begerak
-    while(digitalRead(LIM9) != 0){
-      toStepBareng(lantai, 200);
+    else{
+      toStep(lantai, 200);
     }
     
-    
-    
-    
-    //kebelakang
-//    while(digitalRead(LIM9) != LOW){
-////      Serial.print("lim belakangg " ); Serial.println(digitalRead(LIM9));
-//      motor2(-200);
-//    }
-    motor2(0);
-    //servo turun
-    servo(0);
-    masok = 'a';
-    prevLantai = lantai;
   }
+  
+  if(indexTiang == 1){
+    digitalWrite(LEDD1,1);
+    digitalWrite(LEDD2,0);
+    digitalWrite(LEDD3,0);
+    digitalWrite(LEDD4,0);
+  }
+  else if(indexTiang == 2){
+    digitalWrite(LEDD1,0);
+    digitalWrite(LEDD2,1);
+    digitalWrite(LEDD3,0);
+    digitalWrite(LEDD4,0);
+  }
+  else if(indexTiang == 3){
+    digitalWrite(LEDD1,0);
+    digitalWrite(LEDD2,0);
+    digitalWrite(LEDD3,1);
+    digitalWrite(LEDD4,0);
+  }
+  else if(indexTiang == 4){
+    digitalWrite(LEDD1,0);
+    digitalWrite(LEDD2,0);
+    digitalWrite(LEDD3,0);
+    digitalWrite(LEDD4,1);
+  }
+  else{
+    digitalWrite(LEDD1,0);
+    digitalWrite(LEDD2,0);
+    digitalWrite(LEDD3,0);
+    digitalWrite(LEDD4,0);
+  }
+   
   gasFalcon(velocity);
 }

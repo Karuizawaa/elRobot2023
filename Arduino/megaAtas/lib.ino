@@ -9,7 +9,7 @@
 void kalibrasiIMU() {
   Serial3.begin(115200);
 
-  Serial.println("mulai kalibret");
+  Serial.println("Mulai Kalibret");
 
   delay(3000);
 
@@ -29,18 +29,13 @@ void kalibrasiIMU() {
   Serial3.write(0x53);
 
   delay(100); // Jeda sebentar
-  Serial.println("selesai kalbret IMU");
+  Serial.println("selesai kalibret IMU");
 }
 
 void kalibrasiStepper() {
-  while (digitalRead(LIM10) != LOW) {
-    Serial.println("motor mentokin kedepan");
-    motor2(200);
-  }
-  Serial.println("motor sudah mentok kedepan");
-  motor2(0);
+  
   //servo naik
-  servo(70);
+//  servo(70);
   while (digitalRead(OPTIC) != HIGH) {
 
     Serial.println("Stepper kebawah");
@@ -50,10 +45,15 @@ void kalibrasiStepper() {
     digitalWrite(PUL, LOW);
     delayMicroseconds(200); // ganti delay untuk mempercepat motor
   }
-  sekarang = 1;
+  sekarang = 0;
   //kedepan
-  Serial.println("stepper udah kebawah");
-
+  Serial.println("Stepper udah kebawah");
+  while (digitalRead(LIM10) != LOW) {
+    Serial.println("motor mentokin kedepan");
+    motor2(-255);
+  }
+  Serial.println("motor sudah mentok kedepan");
+  motor2(0);
 }
 
 void updateCMPS() {
@@ -104,6 +104,7 @@ void toStep(int langkah, int kecepatan) {
 
     if (langkah > sekarang) {
       digitalWrite(DIR, LOW);
+      
       sekarang++;
     }
     else {
@@ -120,8 +121,6 @@ void toStep(int langkah, int kecepatan) {
 void toStepBareng(int langkah, int kecepatan) {
   digitalRead(LIM9) != LOW ? motor2(-200) : motor2(0);
   while (sekarang != langkah) {
-    
-
     if (langkah > sekarang) {
       digitalWrite(DIR, LOW);
       sekarang++;
@@ -158,11 +157,11 @@ void motor2 (int pwm) {
   pwm = max(-PWMMAX, min(pwm, PWMMAX));
   analogWrite(pwmM2, fabs(pwm));
 
-  if (pwm > 0) {
+  if (pwm < 0) {
     digitalWrite(cwM2, 1);
     digitalWrite(ccwM2, 0);
   }
-  else if (pwm < 0) {
+  else if (pwm > 0) {
     digitalWrite(cwM2, 0);
     digitalWrite(ccwM2, 1);
   }

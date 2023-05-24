@@ -9,7 +9,6 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include <EthernetUdp.h>
-//#include <EthernetTcp.h>
 
 #define encA 3
 #define encB 4
@@ -17,14 +16,14 @@
 #define CW   7
 #define CCW  8
 
-#define KP 4.3
-#define KI 2.3
+#define KP 14
+#define KI 8
 
 // replace the MAC address below by the MAC address printed on a sticker on the Arduino Shield 2
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
 // change the IP address, subnet mask, gateway's IP address, and DNS server's IP address depending on your network
-IPAddress ip(192, 168, 0, 12);           //Setting IP Address
+IPAddress ip(192, 168, 0, 14);           //Setting IP Address
 IPAddress gateway(192, 168, 0, 1);
 IPAddress subnet(255, 255, 255, 0);
 IPAddress myDns(8, 8, 8, 8);
@@ -33,18 +32,21 @@ EthernetUDP Udp;
 unsigned int localPort = 5555;
 char packetBuffer[512];  // buffer to hold incoming packet,
 
-long int encoder, lastEncoder;
-String kirim;
+volatile long int encoder, lastEncoder;
 unsigned long previousMillis = 0;
 float setVel;
 
 unsigned long int prevT;
 volatile float vFilt, vPrev, sum;
-
+unsigned long tunggmillis;
 // TODO: Declare something depending on your application
 
 void setup() {
-//  Serial.begin(115200);
+//  // Pins D5 and D6 - 4 kHz
+//  TCCR0B = 0b00000010; // x8
+//  TCCR0A = 0b00000001; // fast pwm
+  
+  Serial.begin(115200);
   pinMode(encA, INPUT);
   pinMode(encB, INPUT);
   
@@ -60,18 +62,10 @@ void setup() {
 }
 
 void loop(){
-//  Serial.println(encoder);
-//  Udp.beginPacket(IPAddress(192,168,0,55),5555);
-//  Udp.print(encoder);
-//  Udp.endPacket();
-//
-//  if(int n = Udp.parsePacket()){
-//      Udp.read(packetBuffer,512);  // buffer to hold incoming packet,
-//      packetBuffer[n] = '\0';
-//      setVel = atof(packetBuffer);
-////      Serial.println(packetBuffer);
-//  }
-//  Udp.flush();
-//  closedloopctl(-setVel);
-  motor(-150);
+  kirimEnc();
+  updateVel();
+  if(millis() - tunggmillis > 1){
+    closedloopctl(setVel);
+    tunggmillis = millis();
+  }
 }

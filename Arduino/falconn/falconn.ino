@@ -1,10 +1,10 @@
 #include "Servo.h"
 Servo falcon;
 int setPoint;
-int rpm = 0;
+int rpm = 1500;
 void setup() {
   // put your setup code here, to run once:
-  falcon.attach(12);
+  falcon.attach(11);
   Serial.begin(115200);
 }
 
@@ -14,7 +14,5 @@ void loop() {
     rpm = Serial.parseInt();
     Serial.println(rpm);
   }
-  // put your main code here, to run repeatedly:
-  setPoint = (rpm / 13) + 1500;
-  falcon.writeMicroseconds(setPoint);
+  falcon.writeMicroseconds(rpm);
 }
