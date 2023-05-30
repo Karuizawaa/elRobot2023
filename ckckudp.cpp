@@ -137,7 +137,7 @@ float sumX, sumY, sumT;
 bool l1;
 
 int lantai;
-int indexTiang;
+int indexTiang, offsetFalcon = 0;
 
 bool mode; //false semi auto, true manual stik
 
@@ -201,7 +201,7 @@ void readKibod(const std_msgs::UInt16::ConstPtr& key){
 		MEGA.send(sockfd,"1");
 		MEGA.send(sockfd,"1");
 	}           
-	if(keys == 119) lantai++;
+	if(keys == 119 || keys == 87) lantai++;
 	if(keys == 111 || keys == 79) {
 		for(int i = 0; i < 1000; i++){
 			MEGA.send(sockfd,"F");
@@ -217,10 +217,17 @@ void readKibod(const std_msgs::UInt16::ConstPtr& key){
 			MEGA.send(sockfd,"S");
 		}
 	}
-
+	if(keys == 122 || keys == 90){
+		for(int i = 0; i < 1000; i++){
+			MEGA.send(sockfd,"G");
+		}
+	}
+	if(keys == 100 || keys == 68) offsetFalcon++;
+	if(keys == 99 || keys == 67) offsetFalcon--;
 	if(keys == 13) {
 		mode = true;
 		caseRobot = 0;
+		offsetFalcon = 0;
 		// for(int i = 0; i < 1000; i++){
 		// 	MEGA.send(sockfd,"1");
 		// }
@@ -385,10 +392,11 @@ void setPos(float POSX, float POSY, float HADAP) {
 // }
 
 int tiangtoFalcon(uint8_t tiang){
-	if(tiang == 1) return 1655;
+	if(tiang == 1) return 1654;
 	// if(tiang == 1) return 1656; // tiang terdekat dari pojokan atau depan
 	else if(tiang == 2) return 1671; // tiang ke dua dari depan
-	else if(tiang == 3) return 1704; // tiang tertinggi dari tengah
+	// else if(tiang == 3) return 1704; // tiang tertinggi dari tengah
+	else if(tiang == 3) return 1701;
 	else if(tiang == 4) return 1703; // tiang terjauh dari depan
 	else return 1500;
 }
@@ -517,7 +525,7 @@ int main(int argc, char **argv) {
 		
 		ros::spinOnce();
 		if(caseRobot == 0){
-			std::cout << lantai << std::endl;
+			std::cout << tiangtoFalcon(indexTiang)<< std::endl;
 			// calculatePos();
 			// x_temp = x;
 			if(lantai > 10){
@@ -535,7 +543,7 @@ int main(int argc, char **argv) {
 			else MEGA.send(sockfd, "-0");
 			kinematic(lx * 3.7, ly * 3.7, (LL - RR) * 3,0,0);
 			char pwmfalcon[10];
-			sprintf(pwmfalcon, "+%d", tiangtoFalcon(indexTiang));
+			sprintf(pwmfalcon, "+%d", tiangtoFalcon(indexTiang) + 3 + offsetFalcon);
 			MEGA.send(sockfd, pwmfalcon);
 			char LEDDPOLES[10];
 			sprintf(LEDDPOLES, " %d,", indexTiang);
