@@ -178,25 +178,78 @@ void motor2 (int pwm) {
   }
 }
 
-//volatile float sum;
-//#define PPR 1
-//void PID(){
+void gakTurun(){
+  //mentokin keatas
+      motor2(50);
+      while(digitalRead(PROX1) == 1 || digitalRead(PROX2) == 1){
+        if(digitalRead(PROX1) == 1){
+          digitalWrite(DIR1, HIGH);
+          digitalWrite(PUL1, HIGH);
+          delayMicroseconds(200); // ganti delay untuk mempercepat motor
+          digitalWrite(PUL1, LOW);
+          delayMicroseconds(200); // ganti delay untuk mempercepat motor
+        }
+        if(digitalRead(PROX2) == 1){
+          digitalWrite(DIR2, HIGH);
+          digitalWrite(PUL2, HIGH);
+          delayMicroseconds(200); // ganti delay untuk mempercepat motor
+          digitalWrite(PUL2, LOW);
+          delayMicroseconds(200); // ganti delay untuk mempercepat motor
+        }
+      }
+//      unsigned long tunggu = millis();
+//      while(millis() - tunggu <= 200){
+//        updateCMPS();
+//        motor2(-150);
+//      }
+//      motor2(0);
 //
-//  volatile unsigned long currT = micros();
-//  float deltaT = ((float) (currT - prevT)) / 1.0e6; //jadi satuan detik
-//  prevT = currT;
-//
-//  volatile float setRPM;
-//
-//  volatile float RPM = ((encFalcon - lastFalcon) * 1 / PPR)  * 60 / deltaT;
-//
-//  volatile float err = setRPM - RPM;
-//  sum += err;
-//  volatile float PIDf = KPf * err + KIf * sum;
-//
-//  if(setRPM == 0){
-//    gasFalcon(1500);
-//    sum = 0;
-//  }
-//  gasFalcon(PIDf);
-//}
+      for(int i = 0; i <= 400; i++){
+        digitalWrite(DIR2, HIGH);
+        digitalWrite(DIR1, HIGH);
+        
+        if(i < 300) digitalWrite(PUL2, HIGH);
+        digitalWrite(PUL1, HIGH);
+        delayMicroseconds(200); // ganti delay untuk mempercepat motor
+        
+        if(i < 300)digitalWrite(PUL2, LOW);
+        digitalWrite(PUL1, LOW);
+        delayMicroseconds(200); // ganti delay untuk mempercepat motor
+        
+      }
+//      delay(300);
+      
+      while(digitalRead(LIM10) != LOW){
+        updateCMPS();
+        motor2(-255);
+        
+        if(int n = Udp.parsePacket()){
+          Udp.read(packetBuffer,6);  // buffer to hold incoming packet,
+          packetBuffer[n] = '\0';
+          if(packetBuffer[0] == 'B') motor2(255);
+          if(packetBuffer[0] == 'F') motor2(-255);
+          if(packetBuffer[0] == 'S') motor2(0);
+        }
+      }
+      for(int i = 0; i <= 500; i++){
+        digitalWrite(DIR1, LOW);
+        if(i<200){
+          digitalWrite(DIR2, LOW);
+          digitalWrite(PUL2, HIGH);
+          delayMicroseconds(200); // ganti delay untuk mempercepat motor
+          digitalWrite(PUL2, LOW);
+          delayMicroseconds(200); // ganti delay untuk mempercepat motor
+        }
+        digitalWrite(DIR1, LOW);
+        digitalWrite(PUL1, HIGH);
+        delayMicroseconds(200); // ganti delay untuk mempercepat motor
+        digitalWrite(PUL1, LOW);
+        delayMicroseconds(200); // ganti delay untuk mempercepat motor
+      }
+      //kebelakang
+      while(digitalRead(LIM9) != 0){
+        updateCMPS();
+        motor2(255);
+      }
+      motor2(0);
+}

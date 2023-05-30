@@ -260,28 +260,28 @@ void loop(){
           delayMicroseconds(200); // ganti delay untuk mempercepat motor
         }
       }
-//      unsigned long tunggu = millis();
-//      while(millis() - tunggu <= 200){
-////        updateCMPS();
-//        motor2(-200);
-//      }
+      unsigned long tunggu = millis();
+      while(millis() - tunggu <= 200){
+//        updateCMPS();
+        motor2(-150);
+      }
 //      motor2(0);
 //
-//      for(int i = 0; i <= 2000; i++){
-//        digitalWrite(DIR1, LOW);
-//        if(i<1700){
-//          digitalWrite(DIR2, LOW);
-//          digitalWrite(PUL2, HIGH);
-//          delayMicroseconds(200); // ganti delay untuk mempercepat motor
-//          digitalWrite(PUL2, LOW);
-//          delayMicroseconds(200); // ganti delay untuk mempercepat motor
-//        }
-//        digitalWrite(DIR1, LOW);
-//        digitalWrite(PUL1, HIGH);
-//        delayMicroseconds(200); // ganti delay untuk mempercepat motor
-//        digitalWrite(PUL1, LOW);
-//        delayMicroseconds(200); // ganti delay untuk mempercepat motor
-//      }
+      for(int i = 0; i <= 500; i++){
+        digitalWrite(DIR1, LOW);
+        if(i<200){
+          digitalWrite(DIR2, LOW);
+          digitalWrite(PUL2, HIGH);
+          delayMicroseconds(200); // ganti delay untuk mempercepat motor
+          digitalWrite(PUL2, LOW);
+          delayMicroseconds(200); // ganti delay untuk mempercepat motor
+        }
+        digitalWrite(DIR1, LOW);
+        digitalWrite(PUL1, HIGH);
+        delayMicroseconds(200); // ganti delay untuk mempercepat motor
+        digitalWrite(PUL1, LOW);
+        delayMicroseconds(200); // ganti delay untuk mempercepat motor
+      }
 //      delay(300);
       while(digitalRead(LIM10) != LOW){
         updateCMPS();
@@ -308,6 +308,10 @@ void loop(){
       toStep(lantai, 200);
     }
     
+  }
+  if(packetBuffer[0] == 'G'){
+    gakTurun();
+    memset(packetBuffer, '\0', sizeof(packetBuffer));
   }
   
   if(indexTiang == 1){
