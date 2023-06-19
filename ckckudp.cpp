@@ -379,25 +379,25 @@ void setPos(float POSX, float POSY, float HADAP) {
 	usleep(1000);
 }
 
+
+// ring lama pakai ban atas dooble (+7) / double tape (+3)
 // int tiangtoFalcon(uint8_t tiang){
-// 	// if(tiang == 1) return 1672;
-// 	if(tiang == 1) return 1650; // tiang terdekat dari pojokan atau depan
-// 	else if(tiang == 2) return 1685; // tiang kedua dari pojokan
-// 	else if(tiang == 3) return 1720; // tiang tertinggi dari pojokan
-// 	else if(tiang == 4) return 1706; // tiang tertinggi dari tengah
-// 	else if(tiang == 5) return 1673; // tiang ke dua dari depan
-// 	else if(tiang == 6) return 1703; // tiang terjauh dari depan
-// 	// else if(tiang == 6) return 1750;
+// 	if(tiang == 1) return 1654;
+// 	// if(tiang == 1) return 1656; // tiang terdekat dari pojokan atau depan
+// 	// else if(tiang == 2) return 1671; // tiang ke dua dari depan
+// 	else if(tiang == 2) return 1676;
+// 	// else if(tiang == 3) return 1704; // tiang tertinggi dari tengah
+// 	else if(tiang == 3) return 1709;
+// 	else if(tiang == 4) return 1710; // tiang terjauh dari depan
 // 	else return 1500;
 // }
 
+//ring baru panitia double tape
 int tiangtoFalcon(uint8_t tiang){
-	if(tiang == 1) return 1654;
-	// if(tiang == 1) return 1656; // tiang terdekat dari pojokan atau depan
-	else if(tiang == 2) return 1671; // tiang ke dua dari depan
-	// else if(tiang == 3) return 1704; // tiang tertinggi dari tengah
-	else if(tiang == 3) return 1701;
-	else if(tiang == 4) return 1703; // tiang terjauh dari depan
+	if(tiang == 1) return 1641;
+	else if(tiang == 2) return 1665;
+	else if(tiang == 3) return 1714;
+	else if(tiang == 4) return 1715; // tiang terjauh dari depan
 	else return 1500;
 }
 
@@ -543,8 +543,14 @@ int main(int argc, char **argv) {
 			else MEGA.send(sockfd, "-0");
 			kinematic(lx * 3.7, ly * 3.7, (LL - RR) * 3,0,0);
 			char pwmfalcon[10];
-			sprintf(pwmfalcon, "+%d", tiangtoFalcon(indexTiang) + 3 + offsetFalcon);
+			// sprintf(pwmfalcon, "+%d", tiangtoFalcon(indexTiang) + 7 + offsetFalcon); //ring lama(MRI) roller atas double ban
+			// sprintf(pwmfalcon, "+%d", tiangtoFalcon(indexTiang) + 3 + offsetFalcon); //ring lama(MRI) roller double tape
+			sprintf(pwmfalcon, "+%d", tiangtoFalcon(indexTiang)+ offsetFalcon);
 			MEGA.send(sockfd, pwmfalcon);
+			// MEGA.send(sockfd, "+1665"); //tiang 2
+			// MEGA.send(sockfd, "+1718"); //tiang 4
+			// MEGA.send(sockfd, "+1642"); //tiang 1
+			// MEGA.send(sockfd, "+1715"); //tiang 3
 			char LEDDPOLES[10];
 			sprintf(LEDDPOLES, " %d,", indexTiang);
 			MEGA.send(sockfd, LEDDPOLES);
@@ -569,7 +575,7 @@ int main(int argc, char **argv) {
 					MEGA.send(sockfd,"1");
 				}
 				//nyender fence samping
-				while (!(MEGA.terima[2] == '0' && MEGA.terima[5] == '0') && caseRobot == 1) {
+				while (caseRobot == 1) {
 					ros::spinOnce();
 					setPos(0.5, -12.5, 0);
 				}
