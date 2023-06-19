@@ -1,12 +1,13 @@
 void setup() {
   Serial.begin(115200);
-  Serial3.begin(57600);
+  pinMode(13, OUTPUT);
 
 }
 char wkwk;
 void loop() {
-  if(Serial3.available()){
-    wkwk = Serial3.read();
+  if(Serial.available()){
+    wkwk = Serial.read();
+    if(wkwk = 'W') digitalWrite(13,1);
   }
-  Serial.println(wkwk);
+//  Serial.println(wkwk);/
 }

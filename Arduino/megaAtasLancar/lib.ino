@@ -197,6 +197,23 @@ void gakTurun(){
           delayMicroseconds(200); // ganti delay untuk mempercepat motor
         }
       }
+      //turun lagi sampai mati
+      while(digitalRead(PROX1) == 0 || digitalRead(PROX2) == 0){
+        if(digitalRead(PROX1) == 0){
+          digitalWrite(DIR1, LOW);
+          digitalWrite(PUL1, HIGH);
+          delayMicroseconds(200); // ganti delay untuk mempercepat motor
+          digitalWrite(PUL1, LOW);
+          delayMicroseconds(200); // ganti delay untuk mempercepat motor
+        }
+        if(digitalRead(PROX2) == 0){
+          digitalWrite(DIR2, LOW);
+          digitalWrite(PUL2, HIGH);
+          delayMicroseconds(200); // ganti delay untuk mempercepat motor
+          digitalWrite(PUL2, LOW);
+          delayMicroseconds(200); // ganti delay untuk mempercepat motor
+        }
+      }
 //      unsigned long tunggu = millis();
 //      while(millis() - tunggu <= 200){
 //        updateCMPS();
@@ -204,19 +221,21 @@ void gakTurun(){
 //      }
 //      motor2(0);
 //
-      for(int i = 0; i <= 400; i++){
-        digitalWrite(DIR2, HIGH);
-        digitalWrite(DIR1, HIGH);
-        
-        if(i < 300) digitalWrite(PUL2, HIGH);
-        digitalWrite(PUL1, HIGH);
-        delayMicroseconds(200); // ganti delay untuk mempercepat motor
-        
-        if(i < 300)digitalWrite(PUL2, LOW);
-        digitalWrite(PUL1, LOW);
-        delayMicroseconds(200); // ganti delay untuk mempercepat motor
-        
-      }
+
+//      for(int i = 0; i <= 300; i++){
+//        digitalWrite(DIR2, HIGH);
+//        digitalWrite(DIR1, HIGH);
+//        
+//        if(i < 200) digitalWrite(PUL2, HIGH);
+//        digitalWrite(PUL1, HIGH);
+//        delayMicroseconds(200); // ganti delay untuk mempercepat motor
+//        
+//        if(i < 200)digitalWrite(PUL2, LOW);
+//        digitalWrite(PUL1, LOW);
+//        delayMicroseconds(200); // ganti delay untuk mempercepat motor
+//        
+//      }
+
 //      delay(300);
       
       while(digitalRead(LIM10) != LOW){

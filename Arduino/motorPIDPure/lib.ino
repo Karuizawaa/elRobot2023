@@ -11,6 +11,10 @@ void motor(int input) {
     digitalWrite(CW, 0);
     digitalWrite(CCW, 1);
   }
+  else{
+    digitalWrite(CW, 0);
+    digitalWrite(CCW, 0);
+  }
   input = fmin(fmax(input, -200), 200); //batas
   input = abs(input);
   analogWrite(PWMM, input);
@@ -43,5 +47,5 @@ void closedloopctl (float setradPS){
   float err = setradPS - radps;
   sum += err * deltaT;
   float PID = KP * err + KI * sum;
-  motor(PID);
+  motor(-PID);
 }

@@ -9,7 +9,7 @@ void updateVel() {
     base.buffer[base.counter++] = tmp;
     if (tmp == '\n') { // Langkah 1
       base.buffer[base.counter] = 0; // Karakter terminator
-      if(base.buffer[0] == '!') base.vel = atof(strtok(base.buffer + 1, '='));
+      if(base.buffer[0] == '$') base.vel = atof(strtok(base.buffer + 1, '='));
       base.counter = 0;
     }
   }
@@ -41,5 +41,5 @@ void closedloopctl (float setradPS){
   float err = setradPS - radps;
   sum += err * deltaT;
   float PID = KP * err + KI * sum;
-  motor(PID);
+  motor(PID); // motor2 -
 }

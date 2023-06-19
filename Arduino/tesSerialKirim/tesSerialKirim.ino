@@ -1,9 +1,9 @@
 void setup() {
-  Serial.begin(57600);
+  Serial.begin(115200);
 
 }
 
 void loop() {
-  Serial.write(88);
-  delay(100);
+  Serial.print("W");
+  delay(1);
 }

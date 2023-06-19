@@ -76,7 +76,7 @@ Servo B3, falcon;
 #define pwmM4 9
 #define cwM4  8
 #define ccwM4 11
-#define PWMMAX 200
+#define PWMMAX 255
 
 #define LEDD1 28
 #define LEDD2 30
