@@ -334,7 +334,7 @@ void calculatePos() {
 	roda3.receive(sockfd);
 	roda4.receive(sockfd);
 
-	//displacement
+	//displacement in rad/s
 	float v1 = (roda1.enc - roda1.prevenc) * 2 * M_PI / (PPR);
 	float v2 = (roda2.enc - roda2.prevenc) * 2 * M_PI / (PPR);
 	float v3 = (roda3.enc - roda3.prevenc) * 2 * M_PI / (PPR);
