@@ -335,10 +335,10 @@ void calculatePos() {
 	roda4.receive(sockfd);
 
 	//displacement
-	float v1 = (roda1.enc - roda1.prevenc) * KBAN / (PPR);
-	float v2 = (roda2.enc - roda2.prevenc) * KBAN / (PPR);
-	float v3 = (roda3.enc - roda3.prevenc) * KBAN / (PPR);
-	float v4 = (roda4.enc - roda4.prevenc) * KBAN / (PPR);
+	float v1 = (roda1.enc - roda1.prevenc) * 2 * M_PI / (PPR);
+	float v2 = (roda2.enc - roda2.prevenc) * 2 * M_PI / (PPR);
+	float v3 = (roda3.enc - roda3.prevenc) * 2 * M_PI / (PPR);
+	float v4 = (roda4.enc - roda4.prevenc) * 2 * M_PI / (PPR);
 
 	roda1.prevenc = roda1.enc;
 	roda2.prevenc = roda2.enc;
